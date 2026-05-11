@@ -1,0 +1,220 @@
+:root {
+  color-scheme: dark;
+  font-family:
+    "Share Tech Mono",
+    "IBM Plex Mono",
+    "Courier New",
+    monospace;
+  background: #000;
+  color: #d8fff1;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  width: 100%;
+  min-width: 320px;
+  height: 100%;
+  min-height: 100%;
+  margin: 0;
+  overflow: hidden;
+  background: #000;
+}
+
+body {
+  position: fixed;
+  inset: 0;
+}
+
+#app {
+  position: relative;
+  isolation: isolate;
+}
+
+canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+#sky-canvas {
+  z-index: 0;
+  opacity: 0;
+  transition: opacity 2400ms ease;
+}
+
+#visual-canvas {
+  z-index: 1;
+  pointer-events: none;
+}
+
+#brand {
+  position: absolute;
+  z-index: 2;
+  left: 50%;
+  top: 50%;
+  display: grid;
+  grid-template-columns: minmax(58px, 10vw) minmax(0, max-content);
+  align-items: center;
+  gap: clamp(14px, 2.2vw, 30px);
+  width: min(92vw, 1160px);
+  transform: translate(-50%, -44%) scale(0.96);
+  opacity: 0;
+  filter: blur(14px) saturate(0.75);
+  transition:
+    opacity 1800ms ease,
+    transform 2200ms cubic-bezier(0.2, 0.95, 0.18, 1),
+    filter 1800ms ease;
+}
+
+#brand.is-visible {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+  filter: blur(0) saturate(1);
+}
+
+.brand-word {
+  position: relative;
+  width: max-content;
+  max-width: calc(92vw - min(58px, 10vw) - 18px);
+  margin: 0;
+  color: transparent;
+  font-size: clamp(3rem, 10.6vw, 10.5rem);
+  font-weight: 900;
+  line-height: 0.82;
+  letter-spacing: 0;
+  white-space: nowrap;
+  text-transform: uppercase;
+  text-shadow:
+    0 0 28px rgb(30 255 174 / 28%),
+    0 0 52px rgb(80 180 255 / 18%);
+}
+
+.brand-word::before,
+.brand-word::after {
+  position: absolute;
+  inset: 0;
+  content: attr(data-text);
+  color: transparent;
+  background-clip: text;
+  -webkit-background-clip: text;
+}
+
+.brand-word::before {
+  clip-path: inset(0 48% 0 0);
+  background-image:
+    radial-gradient(circle at 18% 34%, #f1ffd8 0 0.08em, transparent 0.085em),
+    radial-gradient(circle at 30% 63%, #88ff96 0 0.055em, transparent 0.06em),
+    repeating-conic-gradient(from 18deg, #deff8b 0deg 9deg, #41ff9a 9deg 15deg, #00c9a7 15deg 22deg);
+  filter: drop-shadow(0 0 22px rgb(95 255 148 / 45%));
+}
+
+.brand-word::after {
+  clip-path: inset(0 0 0 49%);
+  background-image:
+    linear-gradient(105deg, #f8fbff 0%, #8ea7b9 18%, #1b2834 32%, #d5dde4 48%, #5b6d7a 62%, #eff7ff 78%, #344653 100%),
+    repeating-linear-gradient(90deg, transparent 0 0.09em, rgb(255 255 255 / 35%) 0.095em 0.105em, transparent 0.11em 0.19em);
+  filter: drop-shadow(0 0 24px rgb(116 209 255 / 36%));
+}
+
+.brand-sigil {
+  position: relative;
+  width: clamp(58px, 10vw, 132px);
+  aspect-ratio: 1;
+  border: 1px solid rgb(183 250 255 / 48%);
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 35% 36%, rgb(222 255 159 / 94%) 0 6%, transparent 7%),
+    repeating-conic-gradient(from 28deg, rgb(97 255 159 / 78%) 0 9deg, rgb(17 151 132 / 38%) 9deg 17deg, rgb(174 221 255 / 74%) 17deg 23deg, rgb(53 65 76 / 92%) 23deg 32deg),
+    linear-gradient(135deg, rgb(5 26 20 / 96%) 0 48%, rgb(17 22 27 / 96%) 49% 100%);
+  box-shadow:
+    inset 0 0 24px rgb(178 255 229 / 26%),
+    0 0 32px rgb(51 255 188 / 28%),
+    0 0 52px rgb(81 173 255 / 18%);
+  overflow: hidden;
+}
+
+.brand-sigil::before,
+.brand-sigil::after {
+  position: absolute;
+  content: "";
+  inset: 14%;
+  border-radius: 50%;
+}
+
+.brand-sigil::before {
+  border: 1px solid rgb(201 255 161 / 65%);
+  clip-path: polygon(0 0, 50% 0, 50% 100%, 0 100%);
+  background:
+    radial-gradient(circle at 34% 22%, transparent 0 14%, rgb(190 255 118 / 72%) 15% 16%, transparent 17%),
+    radial-gradient(circle at 36% 78%, transparent 0 12%, rgb(85 255 151 / 68%) 13% 14%, transparent 15%);
+}
+
+.brand-sigil::after {
+  border: 1px solid rgb(184 218 236 / 72%);
+  clip-path: polygon(50% 0, 100% 0, 100% 100%, 50% 100%);
+  background:
+    repeating-linear-gradient(90deg, transparent 0 14%, rgb(218 238 255 / 38%) 15% 16%, transparent 17% 22%),
+    repeating-linear-gradient(0deg, transparent 0 17%, rgb(92 192 255 / 35%) 18% 19%, transparent 20% 26%);
+}
+
+.sigil-core {
+  position: absolute;
+  inset: 39%;
+  border-radius: 50%;
+  background: #e7fff6;
+  box-shadow:
+    0 0 12px rgb(245 255 237 / 82%),
+    0 0 28px rgb(75 245 199 / 72%);
+}
+
+.sigil-node {
+  position: absolute;
+  width: 8%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: #e7fff6;
+  box-shadow: 0 0 12px rgb(137 230 255 / 82%);
+}
+
+.node-a {
+  right: 18%;
+  top: 26%;
+}
+
+.node-b {
+  right: 22%;
+  bottom: 20%;
+}
+
+.node-c {
+  left: 20%;
+  bottom: 25%;
+  background: #b9ff96;
+}
+
+@media (max-width: 720px) {
+  #brand {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    gap: 12px;
+  }
+
+  .brand-word {
+    max-width: 94vw;
+    font-size: clamp(2.65rem, 13vw, 5.6rem);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #sky-canvas,
+  #brand {
+    transition-duration: 200ms;
+  }
+}
