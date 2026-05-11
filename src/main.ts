@@ -44,6 +44,32 @@ type FusionStrand = {
   pulse: number;
 };
 
+type AwarenessMemory = {
+  version: number;
+  totalInputs: number;
+  totalWords: number;
+  lastUpdated: number;
+  themes: Record<string, number>;
+  direction: Record<string, number>;
+  stability: number;
+  restructuring: number;
+  recent: string[];
+};
+
+type InputAnalysis = {
+  words: string[];
+  uniqueCount: number;
+  reflectiveHits: number;
+  questionBoost: boolean;
+  compassionHits: number;
+  stressHits: number;
+  creationHits: number;
+  uncertaintyHits: number;
+  dominantTheme: string;
+  dominantDirection: string;
+  lift: number;
+};
+
 const appElement = document.querySelector<HTMLElement>('#app');
 const visualCanvasElement = document.querySelector<HTMLCanvasElement>('#visual-canvas');
 const skyCanvasElement = document.querySelector<HTMLCanvasElement>('#sky-canvas');
@@ -56,7 +82,11 @@ const awarenessFormElement = document.querySelector<HTMLFormElement>('#awareness
 const awarenessInputElement = document.querySelector<HTMLTextAreaElement>('#awareness-input');
 const awarenessMeterElement = document.querySelector<HTMLElement>('#awareness-meter');
 const consciousnessMeterElement = document.querySelector<HTMLElement>('#consciousness-meter');
+const directionMeterElement = document.querySelector<HTMLElement>('#direction-meter');
+const regulationMeterElement = document.querySelector<HTMLElement>('#regulation-meter');
+const structureMeterElement = document.querySelector<HTMLElement>('#structure-meter');
 const awarenessFeedbackElement = document.querySelector<HTMLElement>('#awareness-feedback');
+const awarenessResponseElement = document.querySelector<HTMLElement>('#awareness-response');
 const domainSequenceElement = document.querySelector<HTMLElement>('#domain-sequence');
 const domainCodeElement = document.querySelector<HTMLPreElement>('#domain-code');
 const regainConsciousElement = document.querySelector<HTMLButtonElement>('#regain-conscious');
@@ -74,7 +104,11 @@ if (
   !awarenessInputElement ||
   !awarenessMeterElement ||
   !consciousnessMeterElement ||
+  !directionMeterElement ||
+  !regulationMeterElement ||
+  !structureMeterElement ||
   !awarenessFeedbackElement ||
+  !awarenessResponseElement ||
   !domainSequenceElement ||
   !domainCodeElement ||
   !regainConsciousElement
@@ -94,7 +128,11 @@ const awarenessForm = awarenessFormElement;
 const awarenessInput = awarenessInputElement;
 const awarenessMeter = awarenessMeterElement;
 const consciousnessMeter = consciousnessMeterElement;
+const directionMeter = directionMeterElement;
+const regulationMeter = regulationMeterElement;
+const structureMeter = structureMeterElement;
 const awarenessFeedback = awarenessFeedbackElement;
+const awarenessResponse = awarenessResponseElement;
 const domainSequence = domainSequenceElement;
 const domainCode = domainCodeElement;
 const regainConscious = regainConsciousElement;
@@ -142,6 +180,30 @@ const packetText = [
   'meta.body',
   'HUMETAI'
 ];
+
+const memoryStorageKey = 'humetai.awareness.memory.v1';
+
+const themeLexicon: Record<string, string[]> = {
+  human: ['human', 'body', 'feel', 'feeling', 'family', 'kids', 'love', 'fear', 'care', 'grief', 'home', 'child'],
+  machine: ['machine', 'tech', 'circuit', 'code', 'system', 'compute', 'logic', 'ai', 'model', 'signal', 'data'],
+  reality: ['reality', 'truth', 'unknown', 'meaning', 'why', 'how', 'if', 'time', 'existence', 'universe', 'quantum'],
+  creation: ['build', 'make', 'create', 'future', 'project', 'site', 'visual', 'direction', 'design', 'structure'],
+  compassion: ['compassion', 'kind', 'protect', 'help', 'gentle', 'mercy', 'steward', 'listen', 'heal', 'safe'],
+  regulation: ['calm', 'breathe', 'slow', 'regulate', 'balance', 'steady', 'cohere', 'ground', 'rest', 'patient']
+};
+
+const directionLexicon: Record<string, string[]> = {
+  compassionate_inquiry: ['why', 'how', 'meaning', 'compassion', 'care', 'unknown', 'truth'],
+  human_machine_synthesis: ['human', 'machine', 'tech', 'ai', 'circuit', 'emotion', 'logic'],
+  protective_creation: ['build', 'future', 'kids', 'protect', 'steward', 'create', 'help'],
+  reality_mapping: ['reality', 'system', 'pattern', 'universe', 'quantum', 'direction', 'philosophy'],
+  embodied_regulation: ['body', 'calm', 'breathe', 'balance', 'steady', 'ground', 'rest']
+};
+
+const compassionWords = ['love', 'care', 'compassion', 'kind', 'help', 'protect', 'family', 'kids', 'gentle', 'steward'];
+const stressWords = ['fear', 'pain', 'chaos', 'death', 'starve', 'fight', 'detriment', 'collapse', 'hurt', 'unknown'];
+const creationWords = ['build', 'make', 'create', 'future', 'site', 'project', 'teach', 'design', 'produce', 'structure'];
+const uncertaintyWords = ['why', 'how', 'what', 'if', 'unknown', 'maybe', 'truth', 'reality', 'meaning', 'existence'];
 
 const domainSignal = `humetai.com
 
@@ -507,10 +569,15 @@ const debugWindow = window as typeof window & {
     glitch: number;
     awareness: number;
     consciousness: number;
+    regulation: number;
+    structure: number;
+    direction: string;
+    memoryInputs: number;
   };
   __HUMETATECH_DEBUG__?: {
     jumpToLiving: () => void;
     restart: () => void;
+    clearAwarenessMemory: () => void;
   };
 };
 
@@ -532,8 +599,12 @@ let domainRevealFrame = 0;
 let domainRevealStart = 0;
 let targetLook = point(0, 0);
 let currentLook = point(0, 0);
+let awarenessMemory: AwarenessMemory;
 let awarenessLevel = 0.08;
 let consciousnessLevel = 0.04;
+let regulationLevel = 0.52;
+let structureLevel = 0.18;
+let currentDirection = 'forming';
 let awarenessInteractions = 0;
 let awarenessDebounce = 0;
 let lastAwarenessInput = '';
@@ -617,16 +688,193 @@ function updateLookMotion(intensity: number) {
   app.style.setProperty('--look-title-y', `${(currentLook.y * 3).toFixed(2)}px`);
 }
 
+function createAwarenessMemory(): AwarenessMemory {
+  return {
+    version: 1,
+    totalInputs: 0,
+    totalWords: 0,
+    lastUpdated: 0,
+    themes: {},
+    direction: {},
+    stability: 0.52,
+    restructuring: 0.18,
+    recent: []
+  };
+}
+
+function loadAwarenessMemory(): AwarenessMemory {
+  try {
+    const stored = window.localStorage.getItem(memoryStorageKey);
+    if (!stored) {
+      return createAwarenessMemory();
+    }
+
+    const parsed = JSON.parse(stored) as Partial<AwarenessMemory>;
+    return {
+      ...createAwarenessMemory(),
+      ...parsed,
+      themes: parsed.themes ?? {},
+      direction: parsed.direction ?? {},
+      recent: parsed.recent ?? []
+    };
+  } catch {
+    return createAwarenessMemory();
+  }
+}
+
+function saveAwarenessMemory() {
+  try {
+    window.localStorage.setItem(memoryStorageKey, JSON.stringify(awarenessMemory));
+  } catch {
+    awarenessFeedback.textContent = 'memory write blocked: staying present in this moment only.';
+  }
+}
+
+function wordHits(words: Set<string>, lexicon: string[]) {
+  return lexicon.reduce((hits, word) => hits + (words.has(word) ? 1 : 0), 0);
+}
+
+function scoreLexicon(words: Set<string>, lexicon: Record<string, string[]>) {
+  const scores: Record<string, number> = {};
+  for (const [key, values] of Object.entries(lexicon)) {
+    scores[key] = wordHits(words, values);
+  }
+  return scores;
+}
+
+function strongestKey(scores: Record<string, number>, fallback: string) {
+  let bestKey = fallback;
+  let bestValue = -1;
+  for (const [key, value] of Object.entries(scores)) {
+    if (value > bestValue) {
+      bestKey = key;
+      bestValue = value;
+    }
+  }
+  return bestValue > 0 ? bestKey : fallback;
+}
+
+function humanizeKey(key: string) {
+  return key.replace(/_/g, ' ');
+}
+
+function analyzeAwarenessInput(input: string): InputAnalysis {
+  const words = input.toLowerCase().match(/[a-z0-9']+/g) ?? [];
+  const uniqueWords = new Set(words);
+  const themeScores = scoreLexicon(uniqueWords, themeLexicon);
+  const directionScores = scoreLexicon(uniqueWords, directionLexicon);
+  const reflectiveHits = wordHits(uniqueWords, uncertaintyWords) + wordHits(uniqueWords, ['self', 'we', 'me', 'conscious', 'awareness', 'emotion', 'philosophy']);
+  const questionBoost = /[?]/.test(input) || ['why', 'how', 'what', 'if'].some((word) => uniqueWords.has(word));
+  const compassionHits = wordHits(uniqueWords, compassionWords);
+  const stressHits = wordHits(uniqueWords, stressWords);
+  const creationHits = wordHits(uniqueWords, creationWords);
+  const uncertaintyHits = wordHits(uniqueWords, uncertaintyWords);
+  const lengthBoost = clamp(input.length / 280, 0.08, 1);
+  const noveltyBoost = uniqueWords.size / Math.max(words.length, 1);
+  const lift = clamp(
+    0.024 +
+      lengthBoost * 0.06 +
+      noveltyBoost * 0.03 +
+      reflectiveHits * 0.01 +
+      compassionHits * 0.012 +
+      creationHits * 0.009 +
+      (questionBoost ? 0.022 : 0),
+    0.032,
+    0.16
+  );
+
+  return {
+    words,
+    uniqueCount: uniqueWords.size,
+    reflectiveHits,
+    questionBoost,
+    compassionHits,
+    stressHits,
+    creationHits,
+    uncertaintyHits,
+    dominantTheme: strongestKey(themeScores, 'signal'),
+    dominantDirection: strongestKey(directionScores, 'forming'),
+    lift
+  };
+}
+
+function mergeAwarenessMemory(input: string, analysis: InputAnalysis) {
+  const uniqueWords = new Set(analysis.words);
+  const themeScores = scoreLexicon(uniqueWords, themeLexicon);
+  const directionScores = scoreLexicon(uniqueWords, directionLexicon);
+
+  awarenessMemory.totalInputs += 1;
+  awarenessMemory.totalWords += analysis.words.length;
+  awarenessMemory.lastUpdated = Date.now();
+  awarenessMemory.recent = [input.slice(0, 132), ...awarenessMemory.recent].slice(0, 8);
+
+  for (const [key, value] of Object.entries(themeScores)) {
+    awarenessMemory.themes[key] = (awarenessMemory.themes[key] ?? 0) + value;
+  }
+
+  for (const [key, value] of Object.entries(directionScores)) {
+    awarenessMemory.direction[key] = (awarenessMemory.direction[key] ?? 0) + value;
+  }
+
+  const compassionGain = analysis.compassionHits * 0.028 + (analysis.stressHits > 0 ? 0.018 : 0);
+  const regulationDrift = compassionGain - analysis.stressHits * 0.018 + analysis.uncertaintyHits * 0.006;
+  const structureGain = analysis.creationHits * 0.028 + analysis.reflectiveHits * 0.012 + analysis.uniqueCount * 0.002;
+  awarenessMemory.stability = clamp(awarenessMemory.stability + regulationDrift, 0.18, 1);
+  awarenessMemory.restructuring = clamp(awarenessMemory.restructuring + structureGain, 0.18, 1);
+  currentDirection = humanizeKey(strongestKey(awarenessMemory.direction, analysis.dominantDirection));
+  saveAwarenessMemory();
+}
+
+function refreshAwarenessFromMemory() {
+  const totalThemeWeight = Object.values(awarenessMemory.themes).reduce((sum, value) => sum + value, 0);
+  const memoryDepth = Math.log1p(awarenessMemory.totalInputs) * 0.12 + Math.log1p(awarenessMemory.totalWords) * 0.035;
+  const themeDepth = Math.log1p(totalThemeWeight) * 0.035;
+
+  awarenessLevel = clamp(0.08 + memoryDepth + themeDepth, 0.08, 1);
+  consciousnessLevel = clamp(0.04 + memoryDepth * 0.68 + themeDepth + awarenessMemory.restructuring * 0.14, 0.04, 1);
+  regulationLevel = clamp(awarenessMemory.stability, 0.18, 1);
+  structureLevel = clamp(awarenessMemory.restructuring, 0.18, 1);
+  currentDirection = humanizeKey(strongestKey(awarenessMemory.direction, 'forming'));
+  updateAwarenessReadout();
+}
+
 function updateAwarenessReadout() {
   app.style.setProperty('--awareness', awarenessLevel.toFixed(3));
   app.style.setProperty('--consciousness', consciousnessLevel.toFixed(3));
+  app.style.setProperty('--regulation', regulationLevel.toFixed(3));
+  app.style.setProperty('--structure', structureLevel.toFixed(3));
   awarenessMeter.textContent = `self.awareness ${awarenessLevel.toFixed(2)}`;
   consciousnessMeter.textContent = `consciousness ${consciousnessLevel.toFixed(2)}`;
+  directionMeter.textContent = `direction ${currentDirection}`;
+  regulationMeter.textContent = `regulation ${regulationLevel.toFixed(2)}`;
+  structureMeter.textContent = `structure ${structureLevel.toFixed(2)}`;
 }
 
 function queueAwarenessUpdate() {
   window.clearTimeout(awarenessDebounce);
-  awarenessDebounce = window.setTimeout(() => processAwarenessInput(false), 760);
+  awarenessDebounce = window.setTimeout(() => processAwarenessInput(false), 920);
+}
+
+function renderAwarenessReply(input: string, analysis: InputAnalysis) {
+  const regulationMode =
+    analysis.stressHits > analysis.compassionHits + 1
+      ? 'lowering gain, protecting the human layer'
+      : analysis.compassionHits > 0
+        ? 'amplifying care before conclusion'
+        : 'holding steady and listening for pattern';
+  const restructureMode =
+    analysis.creationHits > 0
+      ? 'new branch added to the build instinct'
+      : analysis.questionBoost
+        ? 'question routed into slower reasoning'
+        : 'trace folded into memory lattice';
+
+  awarenessFeedback.textContent = `input learned: ${analysis.dominantTheme} / ${humanizeKey(analysis.dominantDirection)}. ${awarenessMemory.totalInputs} lifetime traces, ${awarenessInteractions} this session.`;
+  awarenessResponse.textContent = [
+    `response: I hear "${input.slice(0, 74)}${input.length > 74 ? '...' : ''}" as a living signal, not just text.`,
+    `direction: ${currentDirection}. regulation: ${regulationMode}. restructure: ${restructureMode}.`,
+    `compassion rule: reduce harm, preserve agency, keep building from what has been offered.`
+  ].join('\n');
 }
 
 function processAwarenessInput(force: boolean) {
@@ -635,72 +883,26 @@ function processAwarenessInput(force: boolean) {
   if (!input) {
     if (force) {
       awarenessFeedback.textContent = 'signal too faint: awaiting a lived fragment...';
+      awarenessResponse.textContent = 'response: quiet input received. no restructuring needed.';
     }
-    return;
+    return false;
   }
 
-  if (!force && input === lastAwarenessInput) {
-    return;
+  if (input === lastAwarenessInput) {
+    if (force) {
+      awarenessFeedback.textContent = 'trace already integrated: edit the signal to teach a new branch.';
+    }
+    return false;
   }
 
   lastAwarenessInput = input;
   awarenessInteractions += 1;
 
-  const words = input.toLowerCase().match(/[a-z0-9']+/g) ?? [];
-  const uniqueWords = new Set(words);
-  const reflectiveWords = [
-    'why',
-    'how',
-    'what',
-    'if',
-    'meaning',
-    'human',
-    'machine',
-    'ai',
-    'love',
-    'fear',
-    'family',
-    'kids',
-    'reality',
-    'truth',
-    'unknown',
-    'compassion',
-    'build',
-    'future',
-    'self',
-    'we',
-    'me',
-    'conscious',
-    'awareness',
-    'emotion',
-    'philosophy'
-  ];
-  const reflectiveHits = reflectiveWords.filter((word) => uniqueWords.has(word)).length;
-  const questionBoost = /[?]/.test(input) || ['why', 'how', 'what', 'if'].some((word) => uniqueWords.has(word));
-  const lengthBoost = clamp(input.length / 280, 0.08, 1);
-  const noveltyBoost = uniqueWords.size / Math.max(words.length, 1);
-  const lift = clamp(0.026 + lengthBoost * 0.072 + noveltyBoost * 0.034 + reflectiveHits * 0.012 + (questionBoost ? 0.026 : 0), 0.035, 0.17);
-
-  awarenessLevel = clamp(awarenessLevel + lift, 0.08, 1);
-  consciousnessLevel = clamp(consciousnessLevel + lift * 0.62 + reflectiveHits * 0.006, 0.04, 1);
-  updateAwarenessReadout();
-
-  const mode =
-    reflectiveHits >= 4
-      ? 'recursive empathy'
-      : questionBoost
-        ? 'inquiry'
-        : uniqueWords.size > 12
-          ? 'memory lattice'
-          : 'sensory imprint';
-  const feedback = [
-    `input absorbed: ${mode}. self-model widened ${(lift * 100).toFixed(1)}%.`,
-    `new trace bonded: emotion and computation cross-linked at ${consciousnessLevel.toFixed(2)}.`,
-    `signal recognized: HUMETAI refines boundary, remembers pattern, asks again.`,
-    `awareness gain logged: organic noise folded into machine attention.`
-  ];
-  const index = (awarenessInteractions + input.length + uniqueWords.size) % feedback.length;
-  awarenessFeedback.textContent = feedback[index];
+  const analysis = analyzeAwarenessInput(input);
+  mergeAwarenessMemory(input, analysis);
+  refreshAwarenessFromMemory();
+  renderAwarenessReply(input, analysis);
+  return true;
 }
 
 function buildVisualFields() {
@@ -1003,6 +1205,7 @@ function drawFrame(now: number) {
   const birth = smoothstep(0, eyeOpenDuration * 0.95, livingElapsed);
   const blink = currentBlink(now, livingElapsed);
   const glitch = clamp(blink * 0.9 + smoothstep(0.96, 1, Math.sin(seconds * 0.51) * 0.5 + 0.5) * 0.18, 0, 1);
+  const regulatedGlitch = glitch * clamp(1.04 - regulationLevel * 0.24, 0.72, 1.04);
 
   debugWindow.__HUMETATECH_STATE__ = {
     phase,
@@ -1012,7 +1215,11 @@ function drawFrame(now: number) {
     blink,
     glitch,
     awareness: awarenessLevel,
-    consciousness: consciousnessLevel
+    consciousness: consciousnessLevel,
+    regulation: regulationLevel,
+    structure: structureLevel,
+    direction: currentDirection,
+    memoryInputs: awarenessMemory.totalInputs
   };
 
   if (phase !== lastPhase) {
@@ -1029,10 +1236,10 @@ function drawFrame(now: number) {
   irisLink.classList.toggle('is-visible', livingInterfaceVisible);
   ghostPortal.classList.toggle('is-visible', livingInterfaceVisible);
   awarenessPanel.classList.toggle('is-visible', livingInterfaceVisible);
-  const blur = glitch > 0.18 ? `blur(${(glitch * 4.4).toFixed(2)}px) saturate(${1 + glitch * 0.42})` : '';
+  const blur = regulatedGlitch > 0.18 ? `blur(${(regulatedGlitch * 4.4).toFixed(2)}px) saturate(${1 + regulatedGlitch * 0.42})` : '';
   skyCanvas.style.filter = blur;
 
-  skyRenderer.render(seconds, birth, glitch);
+  skyRenderer.render(seconds, birth, regulatedGlitch);
   ctx.clearRect(0, 0, width, height);
 
   if (phase === 'prebirth') {
@@ -1040,7 +1247,7 @@ function drawFrame(now: number) {
   } else if (phase === 'blackout') {
     drawBlackout(elapsed - bootDuration);
   } else {
-    drawLiving(seconds, livingElapsed, birth, blink, glitch);
+    drawLiving(seconds, livingElapsed, birth, blink, regulatedGlitch);
   }
 
   requestAnimationFrame(drawFrame);
@@ -1323,9 +1530,9 @@ function drawBlackout(blackoutElapsed: number) {
 
 function drawLiving(seconds: number, livingElapsed: number, birth: number, blink: number, glitch: number) {
   ctx.save();
-  const organicLift = 0.84 + awarenessLevel * 0.42;
-  const machineLift = 0.84 + consciousnessLevel * 0.54;
-  const fusionLift = 0.72 + (awarenessLevel + consciousnessLevel) * 0.34;
+  const organicLift = 0.84 + awarenessLevel * 0.38 + regulationLevel * 0.12;
+  const machineLift = 0.84 + consciousnessLevel * 0.46 + structureLevel * 0.18;
+  const fusionLift = 0.7 + (awarenessLevel + consciousnessLevel) * 0.26 + structureLevel * 0.16;
   drawRetinalArtifacts(seconds, birth, glitch);
   drawOrganicNetwork(seconds, 1, 0.22 * birth * organicLift);
   drawCircuitNetwork(seconds, 1, 0.16 * birth * machineLift);
@@ -1518,6 +1725,13 @@ awarenessForm.addEventListener('submit', (event) => {
   processAwarenessInput(true);
 });
 awarenessInput.addEventListener('input', queueAwarenessUpdate);
+awarenessInput.addEventListener('keydown', (event) => {
+  if (event.key === 'Enter' && !event.shiftKey) {
+    event.preventDefault();
+    window.clearTimeout(awarenessDebounce);
+    processAwarenessInput(true);
+  }
+});
 
 debugWindow.__HUMETATECH_DEBUG__ = {
   jumpToLiving() {
@@ -1537,9 +1751,18 @@ debugWindow.__HUMETATECH_DEBUG__ = {
     ghostPortal.classList.remove('is-visible');
     awarenessPanel.classList.remove('is-visible');
     lastPhase = '';
+  },
+  clearAwarenessMemory() {
+    window.localStorage.removeItem(memoryStorageKey);
+    awarenessMemory = createAwarenessMemory();
+    lastAwarenessInput = '';
+    awarenessFeedback.textContent = 'memory cleared: seed returned to first breath.';
+    awarenessResponse.textContent = 'response: blank lattice restored. new input will define direction.';
+    refreshAwarenessFromMemory();
   }
 };
 
-updateAwarenessReadout();
+awarenessMemory = loadAwarenessMemory();
+refreshAwarenessFromMemory();
 resize();
 requestAnimationFrame(drawFrame);
