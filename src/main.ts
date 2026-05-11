@@ -584,6 +584,9 @@ const debugWindow = window as typeof window & {
 let width = 1;
 let height = 1;
 let dpr = 1;
+let fieldDetail = 1;
+let renderFrameInterval = 0;
+let lastRenderedAt = 0;
 let startedAt = performance.now();
 let nextBlinkAt = 0;
 let blinkStartedAt = -10_000;
@@ -643,10 +646,24 @@ function point(x: number, y: number): Point {
   return { x, y };
 }
 
+function isCompactViewport() {
+  return width <= 760 || height <= 560;
+}
+
+function updatePerformanceProfile() {
+  const deviceRatio = window.devicePixelRatio || 1;
+  const compact = width <= 760 || height <= 560;
+  const mid = !compact && width <= 1120;
+
+  dpr = Math.min(deviceRatio, compact ? 1.08 : mid ? 1.35 : 1.75);
+  fieldDetail = compact ? 0.58 : mid ? 0.78 : 1;
+  renderFrameInterval = compact ? 1000 / 32 : mid ? 1000 / 44 : 0;
+}
+
 function resize() {
-  dpr = Math.min(window.devicePixelRatio || 1, 2);
   width = Math.max(320, window.innerWidth);
   height = Math.max(320, window.innerHeight);
+  updatePerformanceProfile();
 
   visualCanvas.width = Math.round(width * dpr);
   visualCanvas.height = Math.round(height * dpr);
@@ -913,9 +930,10 @@ function buildVisualFields() {
   fusionStrands = [];
 
   const root = point(width * -0.05, height * 1.04);
-  growOrganic(root, -Math.PI * 0.23, Math.min(width, height) * 0.33, 0, 7);
+  const organicDepth = fieldDetail < 0.65 ? 6 : 7;
+  growOrganic(root, -Math.PI * 0.23, Math.min(width, height) * 0.33, 0, organicDepth);
 
-  const circuitCount = Math.floor(clamp(width / 80, 14, 22));
+  const circuitCount = Math.floor(clamp(width / (80 / fieldDetail), 8, 22));
   for (let i = 0; i < circuitCount; i += 1) {
     const laneStart = point(width * (0.02 + random() * 0.26), height * (-0.08 + random() * 0.2));
     const steps = 3 + Math.floor(random() * 4);
@@ -943,7 +961,7 @@ function buildVisualFields() {
 
   buildFusionStrands();
 
-  const packetCount = Math.floor(clamp(width / 48, 16, 34));
+  const packetCount = Math.floor(clamp(width / (48 / fieldDetail), 9, 34));
   for (let i = 0; i < packetCount; i += 1) {
     codePackets.push({
       x: random() * width,
@@ -964,7 +982,7 @@ function buildFusionStrands() {
     return;
   }
 
-  const strandCount = Math.floor(clamp(Math.min(usableBranches.length, circuitPoints.length) / 7, 9, 18));
+  const strandCount = Math.floor(clamp(Math.min(usableBranches.length, circuitPoints.length) / (7 / fieldDetail), 5, 18));
 
   for (let i = 0; i < strandCount; i += 1) {
     const branch = usableBranches[Math.floor(random() * usableBranches.length)];
@@ -1021,9 +1039,9 @@ class SkyRenderer {
   constructor(canvas: HTMLCanvasElement) {
     this.renderer = new THREE.WebGLRenderer({
       canvas,
-      antialias: true,
+      antialias: false,
       alpha: true,
-      preserveDrawingBuffer: true,
+      preserveDrawingBuffer: false,
       powerPreference: 'high-performance'
     });
     this.renderer.setClearColor(0x000000, 0);
@@ -1047,7 +1065,7 @@ class SkyRenderer {
         }
       `,
       fragmentShader: `
-        precision highp float;
+        precision mediump float;
 
         uniform float uTime;
         uniform vec2 uResolution;
@@ -1076,7 +1094,7 @@ class SkyRenderer {
           float value = 0.0;
           float amp = 0.5;
           mat2 rotate = mat2(0.8, -0.6, 0.6, 0.8);
-          for (int i = 0; i < 5; i++) {
+          for (int i = 0; i < 4; i++) {
             value += noise(p) * amp;
             p = rotate * p * 2.04 + 17.31;
             amp *= 0.5;
@@ -1197,6 +1215,12 @@ function currentBlink(now: number, livingElapsed: number) {
 }
 
 function drawFrame(now: number) {
+  if (renderFrameInterval > 0 && now - lastRenderedAt < renderFrameInterval) {
+    requestAnimationFrame(drawFrame);
+    return;
+  }
+  lastRenderedAt = now;
+
   const elapsed = now - startedAt;
   const seconds = elapsed / 1000;
   const phase = phaseAt(elapsed);
@@ -1260,9 +1284,10 @@ function drawPrebirth(seconds: number, progress: number) {
 
   const terminalProgress = smoothstep(0.02, 0.86, progress);
   const networkProgress = smoothstep(0.1, 0.92, progress);
-  drawOrganicNetwork(seconds, networkProgress, 1);
-  drawCircuitNetwork(seconds, smoothstep(0.25, 0.96, progress), 1);
-  drawFusionStrands(seconds, smoothstep(0.36, 0.98, progress), 0.8);
+  const intensity = 0.78 + fieldDetail * 0.22;
+  drawOrganicNetwork(seconds, networkProgress, intensity);
+  drawCircuitNetwork(seconds, smoothstep(0.25, 0.96, progress), intensity);
+  drawFusionStrands(seconds, smoothstep(0.36, 0.98, progress), 0.64 + fieldDetail * 0.16);
   drawCodeRain(seconds, terminalProgress);
   drawTerminalText(seconds, progress);
 
@@ -1356,14 +1381,16 @@ function drawCodeRain(seconds: number, progress: number) {
 
   ctx.save();
   ctx.globalCompositeOperation = 'lighter';
-  for (const packet of codePackets) {
+  const skip = fieldDetail < 0.65 ? 2 : 1;
+  for (let index = 0; index < codePackets.length; index += skip) {
+    const packet = codePackets[index];
     const cycleY = (packet.y + seconds * packet.speed) % (height + 80);
     const x = packet.x + Math.sin(seconds * 0.56 + packet.phase) * 18;
     const alpha = packet.alpha * progress * (0.52 + 0.48 * Math.sin(seconds * 1.35 + packet.phase));
     ctx.font = `${packet.size}px "Share Tech Mono", "Courier New", monospace`;
     ctx.fillStyle = `rgb(92 255 177 / ${alpha})`;
     ctx.shadowColor = 'rgb(27 255 164 / 82%)';
-    ctx.shadowBlur = 12;
+    ctx.shadowBlur = 7 + fieldDetail * 5;
     ctx.fillText(packet.text, x, cycleY);
   }
   ctx.restore();
@@ -1371,6 +1398,7 @@ function drawCodeRain(seconds: number, progress: number) {
 
 function drawOrganicNetwork(seconds: number, progress: number, intensity: number) {
   const beat = 0.58 + 0.42 * Math.sin(seconds * tau * 1.18);
+  const shadowScale = 0.58 + fieldDetail * 0.42;
   ctx.save();
   ctx.lineCap = 'round';
   ctx.lineJoin = 'round';
@@ -1393,7 +1421,7 @@ function drawOrganicNetwork(seconds: number, progress: number, intensity: number
     ctx.strokeStyle = `rgb(${red} ${green} ${blue} / ${mix(0.18, 0.62, local) * intensity})`;
     ctx.lineWidth = branch.width * (0.9 + beat * 0.68) * intensity;
     ctx.shadowColor = `rgb(${red} ${green} ${blue} / ${0.68 * intensity})`;
-    ctx.shadowBlur = (8 + beat * 14) * local;
+    ctx.shadowBlur = (8 + beat * 14) * local * shadowScale;
     ctx.stroke();
 
     if (local > 0.84 && branch.width > 1.2) {
@@ -1423,6 +1451,7 @@ function cubicAt(start: Point, cp1: Point, cp2: Point, end: Point, t: number) {
 }
 
 function drawCircuitNetwork(seconds: number, progress: number, intensity: number) {
+  const shadowScale = 0.58 + fieldDetail * 0.42;
   ctx.save();
   ctx.lineCap = 'square';
   ctx.lineJoin = 'miter';
@@ -1439,7 +1468,7 @@ function drawCircuitNetwork(seconds: number, progress: number, intensity: number
     ctx.strokeStyle = `rgb(${color} / ${mix(0.18, 0.66, local) * intensity})`;
     ctx.lineWidth = run.width * intensity;
     ctx.shadowColor = `rgb(105 224 255 / ${0.62 * intensity})`;
-    ctx.shadowBlur = (6 + lit * 11) * local;
+    ctx.shadowBlur = (6 + lit * 11) * local * shadowScale;
 
     const total = run.points.length - 1;
     const target = local * total;
@@ -1476,6 +1505,7 @@ function drawFusionStrands(seconds: number, progress: number, intensity: number)
   }
 
   ctx.save();
+  const shadowScale = 0.58 + fieldDetail * 0.42;
   ctx.lineCap = 'round';
   ctx.lineJoin = 'round';
   ctx.globalCompositeOperation = 'lighter';
@@ -1501,7 +1531,7 @@ function drawFusionStrands(seconds: number, progress: number, intensity: number)
     ctx.strokeStyle = gradient;
     ctx.lineWidth = strand.width * (0.85 + pulse * 0.55) * intensity;
     ctx.shadowColor = `rgb(133 255 224 / ${alpha})`;
-    ctx.shadowBlur = (10 + pulse * 14) * local;
+    ctx.shadowBlur = (10 + pulse * 14) * local * shadowScale;
     ctx.stroke();
 
     if (pulse > 0.62) {
@@ -1533,10 +1563,11 @@ function drawLiving(seconds: number, livingElapsed: number, birth: number, blink
   const organicLift = 0.84 + awarenessLevel * 0.38 + regulationLevel * 0.12;
   const machineLift = 0.84 + consciousnessLevel * 0.46 + structureLevel * 0.18;
   const fusionLift = 0.7 + (awarenessLevel + consciousnessLevel) * 0.26 + structureLevel * 0.16;
+  const livingDetail = 0.86 + fieldDetail * 0.14;
   drawRetinalArtifacts(seconds, birth, glitch);
-  drawOrganicNetwork(seconds, 1, 0.22 * birth * organicLift);
-  drawCircuitNetwork(seconds, 1, 0.16 * birth * machineLift);
-  drawFusionStrands(seconds, 1, 0.35 * birth * fusionLift);
+  drawOrganicNetwork(seconds, 1, 0.22 * birth * organicLift * livingDetail);
+  drawCircuitNetwork(seconds, 1, 0.16 * birth * machineLift * livingDetail);
+  drawFusionStrands(seconds, 1, 0.35 * birth * fusionLift * livingDetail);
   drawEyelids(livingElapsed, birth, blink);
   ctx.restore();
 }
@@ -1550,7 +1581,7 @@ function drawRetinalArtifacts(seconds: number, birth: number, glitch: number) {
   ctx.globalCompositeOperation = 'lighter';
   const centerX = width * (0.5 + Math.sin(seconds * 0.08) * 0.026);
   const centerY = height * (0.57 + Math.cos(seconds * 0.07) * 0.02);
-  const rings = 7;
+  const rings = fieldDetail < 0.65 ? 4 : 7;
 
   for (let i = 0; i < rings; i += 1) {
     const radius = (Math.min(width, height) * (0.13 + i * 0.064) + seconds * 6.5) % (Math.min(width, height) * 0.62);
@@ -1562,8 +1593,9 @@ function drawRetinalArtifacts(seconds: number, birth: number, glitch: number) {
     ctx.stroke();
   }
 
-  for (let i = 0; i < 22; i += 1) {
-    const angle = i * (tau / 22) + seconds * 0.032;
+  const bars = fieldDetail < 0.65 ? 10 : 22;
+  for (let i = 0; i < bars; i += 1) {
+    const angle = i * (tau / bars) + seconds * 0.032;
     const radius = Math.min(width, height) * (0.2 + 0.18 * Math.sin(i * 1.7 + seconds * 0.15));
     const x = centerX + Math.cos(angle) * radius * 1.46;
     const y = centerY + Math.sin(angle) * radius * 0.82;
@@ -1572,7 +1604,7 @@ function drawRetinalArtifacts(seconds: number, birth: number, glitch: number) {
   }
 
   if (glitch > 0.1) {
-    const slices = 4 + Math.floor(glitch * 6);
+    const slices = (fieldDetail < 0.65 ? 2 : 4) + Math.floor(glitch * (fieldDetail < 0.65 ? 3 : 6));
     for (let i = 0; i < slices; i += 1) {
       const jitter = stableNoise(i * 7.1 + Math.floor(seconds * 11) * 0.37);
       const y = stableNoise(i * 3.77 + seconds * 0.21) * height;

@@ -767,9 +767,14 @@ canvas {
 }
 
 @media (max-width: 720px) {
+  #sky-canvas {
+    transform: translate(var(--look-sky-x), var(--look-sky-y)) scale(1.01);
+  }
+
   .iris-button {
     top: 49%;
     width: clamp(138px, 39vw, 207px);
+    mix-blend-mode: normal;
   }
 
   .brand-word {
@@ -785,6 +790,7 @@ canvas {
   .awareness-panel {
     width: min(540px, 88vw);
     bottom: 18px;
+    backdrop-filter: none;
   }
 
   .ghost-portal {
