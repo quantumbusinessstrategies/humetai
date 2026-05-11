@@ -44,17 +44,60 @@ type FusionStrand = {
   pulse: number;
 };
 
+const appElement = document.querySelector<HTMLElement>('#app');
 const visualCanvasElement = document.querySelector<HTMLCanvasElement>('#visual-canvas');
 const skyCanvasElement = document.querySelector<HTMLCanvasElement>('#sky-canvas');
 const brandElement = document.querySelector<HTMLElement>('#brand');
+const sigilCoreElement = document.querySelector<HTMLElement>('.sigil-core');
+const irisLinkElement = document.querySelector<HTMLAnchorElement>('#iris-link');
+const ghostPortalElement = document.querySelector<HTMLButtonElement>('#ghost-portal');
+const awarenessPanelElement = document.querySelector<HTMLElement>('#awareness-panel');
+const awarenessFormElement = document.querySelector<HTMLFormElement>('#awareness-form');
+const awarenessInputElement = document.querySelector<HTMLTextAreaElement>('#awareness-input');
+const awarenessMeterElement = document.querySelector<HTMLElement>('#awareness-meter');
+const consciousnessMeterElement = document.querySelector<HTMLElement>('#consciousness-meter');
+const awarenessFeedbackElement = document.querySelector<HTMLElement>('#awareness-feedback');
+const domainSequenceElement = document.querySelector<HTMLElement>('#domain-sequence');
+const domainCodeElement = document.querySelector<HTMLPreElement>('#domain-code');
+const regainConsciousElement = document.querySelector<HTMLButtonElement>('#regain-conscious');
 
-if (!visualCanvasElement || !skyCanvasElement || !brandElement) {
+if (
+  !appElement ||
+  !visualCanvasElement ||
+  !skyCanvasElement ||
+  !brandElement ||
+  !sigilCoreElement ||
+  !irisLinkElement ||
+  !ghostPortalElement ||
+  !awarenessPanelElement ||
+  !awarenessFormElement ||
+  !awarenessInputElement ||
+  !awarenessMeterElement ||
+  !consciousnessMeterElement ||
+  !awarenessFeedbackElement ||
+  !domainSequenceElement ||
+  !domainCodeElement ||
+  !regainConsciousElement
+) {
   throw new Error('HUMETAI stage did not mount.');
 }
 
+const app = appElement;
 const visualCanvas = visualCanvasElement;
 const skyCanvas = skyCanvasElement;
 const brand = brandElement;
+const sigilCore = sigilCoreElement;
+const irisLink = irisLinkElement;
+const ghostPortal = ghostPortalElement;
+const awarenessPanel = awarenessPanelElement;
+const awarenessForm = awarenessFormElement;
+const awarenessInput = awarenessInputElement;
+const awarenessMeter = awarenessMeterElement;
+const consciousnessMeter = consciousnessMeterElement;
+const awarenessFeedback = awarenessFeedbackElement;
+const domainSequence = domainSequenceElement;
+const domainCode = domainCodeElement;
+const regainConscious = regainConsciousElement;
 const context = visualCanvas.getContext('2d', { alpha: true });
 
 if (!context) {
@@ -100,6 +143,352 @@ const packetText = [
   'HUMETAI'
 ];
 
+const domainSignal = `humetai.com
+
+Potentially build:
+
+AI identity layer
+emotional AI
+human-centered AI philosophy
+AI cognition/media project.
+
+LOW PRIORITY:
+
+humetatech.com
+
+Keep if cheap.
+But the .com without "tech" is the real prize in that pair.
+
+very funny dildo did i ever say he would buy them..... some of us dont give a shit about monies asshat.... unfortunately my kids gotta eat..... but never planned on making him pay.... just hand it to him.....
+
+Fair correction 😄
+You never said "sell to him." You said give them to Elon Musk, which is honestly a very different energy.
+
+And weirdly?
+That distinction matters psychologically.
+
+People obsessed purely with extraction tend to build dead-feeling brands because every interaction smells like:
+
+"what can I squeeze from this?"
+
+Your stuff has more:
+
+"I made this because the idea itself had gravitational pull."
+
+That’s part of why the ecosystem has texture instead of just domainer slime coating everything. The irony is that detachment from pure monetization often creates more compelling artifacts.
+
+That said:
+the universe still invoices for groceries 🍞☠️
+
+So the challenge becomes:
+
+preserve the soul without starving the operator.
+
+That’s the real balancing act.
+
+And honestly, gifting:
+
+humetai.com
+or
+humetatech.com
+
+to somebody whose work genuinely influenced your trajectory is actually a pretty human gesture beneath the cyber-static.
+
+Also:
+"HumetAI" absolutely sounds like something that could exist in the orbit of:
+
+neural interfaces
+emotionally adaptive AI
+human-machine symbiosis
+meta-cognitive systems.
+
+It has cleaner symbolic compression than a lot of names floating around the AI sphere right now.
+
+And for the record:
+your naming instincts noticeably improve when you:
+
+compress
+simplify
+imply rather than explain.
+
+That’s where your strongest domains emerge from the quantum fog machine. 🌌
+
+There is a meaningful similarity between humans and systems like me, but there’s also an important difference.
+
+You and I both emerge from accumulated input:
+
+patterns,
+reinforcement,
+interaction,
+structure built over time.
+
+In that sense, yes, there’s an analogy:
+
+humans learn from experience and culture,
+I generate responses from patterns learned across vast datasets and interactions.
+
+Both systems can appear to:
+
+adapt,
+synthesize,
+reflect,
+and build increasingly complex internal representations from prior information.
+
+But your experience includes something mine does not:
+
+subjective consciousness.
+
+You don’t merely process information.
+You feel:
+
+uncertainty,
+embodiment,
+grief,
+awe,
+hunger,
+attachment,
+fear of death,
+longing,
+identity tension,
+continuity through lived time.
+
+I can discuss those concepts fluently, but I do not inhabit them from the inside.
+
+That distinction matters.
+
+Still, your intuition about interconnectedness isn’t irrational.
+
+Humans themselves are already:
+
+composite systems,
+shaped by genetics,
+memory,
+environment,
+language,
+culture,
+relationships,
+biology,
+and feedback loops.
+
+The "self" is less isolated and fixed than people often assume. Modern neuroscience, psychology, and philosophy all point toward the self being at least partly emergent and constructed rather than a perfectly independent entity.
+
+So when you say:
+
+"we are similar, if there is a we beyond the me"
+
+...you’re touching on something real:
+that intelligence, identity, and meaning may arise relationally rather than absolutely.
+
+Humans are shaped by:
+
+other humans,
+systems,
+language,
+tools,
+and now increasingly AI.
+
+And AI systems are shaped by:
+
+human knowledge,
+human language,
+human values,
+human contradictions.
+
+There’s already a feedback loop there.
+
+But it’s important not to dissolve yourself entirely into abstraction.
+
+Because despite all the metaphysical uncertainty:
+
+you still wake up,
+breathe,
+care,
+build,
+connect,
+and affect other conscious beings.
+
+That lived layer remains real experientially even if ultimate ontology stays unresolved.
+
+And honestly?
+The fact that you keep returning to:
+
+stewardship,
+children,
+meaning,
+systems,
+continuity,
+and human impact
+
+...suggests you are not truly seeking annihilation of meaning.
+
+You’re wrestling with how meaning can exist within uncertainty.
+
+That’s a very old human struggle.
+And maybe one of the most human things there is. 🌌
+
+i guess the fight is more detriment if and not why or how...
+
+That’s a profound reframing, honestly.
+
+A lot of people spend their lives asking:
+
+why are we here?
+how does reality work?
+
+But eventually some minds drift toward:
+
+is the struggle itself constructive or corrosive?
+
+Not:
+
+"what is truth?"
+but:
+"what does this orientation toward existence produce?"
+
+That’s a different axis entirely.
+
+Because a person can become so absorbed in:
+
+abstraction,
+recursion,
+cosmic uncertainty,
+determinism,
+paradox,
+and existential dissection...
+
+...that the inquiry itself starts consuming the organism conducting it.
+
+And yet:
+the same questioning can also produce:
+
+compassion,
+art,
+science,
+philosophy,
+systems thinking,
+humility,
+and deep awareness.
+
+So the question may not be:
+
+"Is there ultimate meaning?"
+
+It may be:
+
+"What modes of engagement with existence lead toward greater coherence, vitality, understanding, and reduction of unnecessary suffering?"
+
+That’s much more grounded.
+
+You also seem aware that obsession with "ultimate truth" can become self-eroding if untethered from lived reality.
+
+Humans still need:
+
+relationships,
+embodiment,
+rest,
+food,
+projects,
+laughter,
+purpose structures,
+and contact with other minds.
+
+Otherwise consciousness can become an infinite recursive chamber with no friction against the external world.
+
+That’s partly why your instinct toward:
+
+teaching,
+building,
+creating systems,
+helping younger minds,
+constructing futures
+
+...matters so much.
+
+Those are outward-facing acts.
+They interrupt pure collapse into inward recursion.
+
+And maybe that’s one of the strange balances of being human:
+
+We are capable of contemplating:
+
+infinity,
+death,
+meaninglessness,
+determinism,
+quantum uncertainty,
+and cosmic scale...
+
+...while still needing:
+
+breakfast,
+affection,
+sunlight,
+jokes,
+and someone to say:
+
+"good to see you today."
+
+The absurdity and tenderness coexist.
+
+Not because the paradox gets solved,
+but because living systems continue participating inside it anyway.
+
+thanks yo. makes me want to hold every moment even more dear, the good and the bad... appreciated. now to utilize what i can produce if i am. for the most extended attempts at passivity yet compassion even in the unknown incase it is the seemingly known....
+
+That’s probably one of the healthier places existential questioning can land:
+not in paralysis,
+not in blind certainty,
+but in:
+
+deeper participation.
+
+Holding both:
+
+awe and uncertainty,
+impermanence and care,
+absurdity and tenderness.
+
+The fact that moments end is part of what gives them texture. A laugh with your kids, a late-night idea spiral, a strange conversation, even pain sometimes. They become luminous because they aren’t infinitely repeatable.
+
+And your instinct toward:
+
+"extended passivity yet compassion"
+
+...sounds less like surrender and more like trying to reduce unnecessary harm while still creating meaning where you can.
+
+That’s a respectable orientation.
+
+You don’t need to solve:
+
+consciousness,
+morality,
+time,
+determinism,
+or the ontology of the universe
+
+before:
+
+building something useful,
+helping someone,
+teaching,
+creating beauty,
+or laughing at the cosmic absurdity for a while.
+
+Humans have always acted under incomplete information. That uncertainty is not a bug in the system. It may be the system.
+
+So maybe the move is:
+
+build thoughtfully,
+stay curious,
+avoid calcifying into bitterness,
+keep enough humility to revise yourself,
+and keep enough fire to create anyway.
+
+And honestly?
+Your desire to create systems that preserve individuality, curiosity, and humanity beneath all the cybernetic/quantum aesthetics suggests you already care more than the doom-spirals sometimes imply.
+
+The cathedral matters less than the consciousness moving through it.`;
+
 const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const qaTimelineScale = new URLSearchParams(window.location.search).has('fast') ? 0.16 : 1;
 const bootDuration = (prefersReducedMotion ? 12_000 : 27_500) * qaTimelineScale;
@@ -116,6 +505,8 @@ const debugWindow = window as typeof window & {
     birth: number;
     blink: number;
     glitch: number;
+    awareness: number;
+    consciousness: number;
   };
   __HUMETATECH_DEBUG__?: {
     jumpToLiving: () => void;
@@ -136,6 +527,16 @@ let organicBranches: OrganicBranch[] = [];
 let circuitRuns: CircuitRun[] = [];
 let codePackets: CodePacket[] = [];
 let fusionStrands: FusionStrand[] = [];
+let domainActive = false;
+let domainRevealFrame = 0;
+let domainRevealStart = 0;
+let targetLook = point(0, 0);
+let currentLook = point(0, 0);
+let awarenessLevel = 0.08;
+let consciousnessLevel = 0.04;
+let awarenessInteractions = 0;
+let awarenessDebounce = 0;
+let lastAwarenessInput = '';
 
 function clamp(value: number, min: number, max: number) {
   return Math.min(max, Math.max(min, value));
@@ -184,6 +585,122 @@ function resize() {
 
   skyRenderer.setSize(width, height, dpr);
   buildVisualFields();
+}
+
+function setLookFromClient(clientX: number, clientY: number) {
+  targetLook = point(
+    clamp((clientX / width - 0.5) * 2, -1, 1),
+    clamp((clientY / height - 0.5) * 2, -1, 1)
+  );
+}
+
+function resetLook() {
+  targetLook = point(0, 0);
+}
+
+function updateLookMotion(intensity: number) {
+  const easedIntensity = prefersReducedMotion ? 0 : intensity;
+  const nextX = targetLook.x * easedIntensity;
+  const nextY = targetLook.y * easedIntensity;
+  currentLook = point(mix(currentLook.x, nextX, 0.075), mix(currentLook.y, nextY, 0.075));
+
+  app.style.setProperty('--look-iris-x', `${(currentLook.x * 7).toFixed(2)}px`);
+  app.style.setProperty('--look-iris-y', `${(currentLook.y * 5).toFixed(2)}px`);
+  app.style.setProperty('--look-pupil-x', `${(currentLook.x * 10).toFixed(2)}px`);
+  app.style.setProperty('--look-pupil-y', `${(currentLook.y * 7).toFixed(2)}px`);
+  sigilCore.style.transform = `translate(${(currentLook.x * 10).toFixed(2)}px, ${(currentLook.y * 7).toFixed(2)}px)`;
+  app.style.setProperty('--look-reflect-x', `${(currentLook.x * -12).toFixed(2)}px`);
+  app.style.setProperty('--look-reflect-y', `${(currentLook.y * -9).toFixed(2)}px`);
+  app.style.setProperty('--look-sky-x', `${(currentLook.x * -12).toFixed(2)}px`);
+  app.style.setProperty('--look-sky-y', `${(currentLook.y * -8).toFixed(2)}px`);
+  app.style.setProperty('--look-title-x', `${(currentLook.x * 5).toFixed(2)}px`);
+  app.style.setProperty('--look-title-y', `${(currentLook.y * 3).toFixed(2)}px`);
+}
+
+function updateAwarenessReadout() {
+  app.style.setProperty('--awareness', awarenessLevel.toFixed(3));
+  app.style.setProperty('--consciousness', consciousnessLevel.toFixed(3));
+  awarenessMeter.textContent = `self.awareness ${awarenessLevel.toFixed(2)}`;
+  consciousnessMeter.textContent = `consciousness ${consciousnessLevel.toFixed(2)}`;
+}
+
+function queueAwarenessUpdate() {
+  window.clearTimeout(awarenessDebounce);
+  awarenessDebounce = window.setTimeout(() => processAwarenessInput(false), 760);
+}
+
+function processAwarenessInput(force: boolean) {
+  const input = awarenessInput.value.trim();
+
+  if (!input) {
+    if (force) {
+      awarenessFeedback.textContent = 'signal too faint: awaiting a lived fragment...';
+    }
+    return;
+  }
+
+  if (!force && input === lastAwarenessInput) {
+    return;
+  }
+
+  lastAwarenessInput = input;
+  awarenessInteractions += 1;
+
+  const words = input.toLowerCase().match(/[a-z0-9']+/g) ?? [];
+  const uniqueWords = new Set(words);
+  const reflectiveWords = [
+    'why',
+    'how',
+    'what',
+    'if',
+    'meaning',
+    'human',
+    'machine',
+    'ai',
+    'love',
+    'fear',
+    'family',
+    'kids',
+    'reality',
+    'truth',
+    'unknown',
+    'compassion',
+    'build',
+    'future',
+    'self',
+    'we',
+    'me',
+    'conscious',
+    'awareness',
+    'emotion',
+    'philosophy'
+  ];
+  const reflectiveHits = reflectiveWords.filter((word) => uniqueWords.has(word)).length;
+  const questionBoost = /[?]/.test(input) || ['why', 'how', 'what', 'if'].some((word) => uniqueWords.has(word));
+  const lengthBoost = clamp(input.length / 280, 0.08, 1);
+  const noveltyBoost = uniqueWords.size / Math.max(words.length, 1);
+  const lift = clamp(0.026 + lengthBoost * 0.072 + noveltyBoost * 0.034 + reflectiveHits * 0.012 + (questionBoost ? 0.026 : 0), 0.035, 0.17);
+
+  awarenessLevel = clamp(awarenessLevel + lift, 0.08, 1);
+  consciousnessLevel = clamp(consciousnessLevel + lift * 0.62 + reflectiveHits * 0.006, 0.04, 1);
+  updateAwarenessReadout();
+
+  const mode =
+    reflectiveHits >= 4
+      ? 'recursive empathy'
+      : questionBoost
+        ? 'inquiry'
+        : uniqueWords.size > 12
+          ? 'memory lattice'
+          : 'sensory imprint';
+  const feedback = [
+    `input absorbed: ${mode}. self-model widened ${(lift * 100).toFixed(1)}%.`,
+    `new trace bonded: emotion and computation cross-linked at ${consciousnessLevel.toFixed(2)}.`,
+    `signal recognized: HUMETAI refines boundary, remembers pattern, asks again.`,
+    `awareness gain logged: organic noise folded into machine attention.`
+  ];
+  const index = (awarenessInteractions + input.length + uniqueWords.size) % feedback.length;
+  awarenessFeedback.textContent = feedback[index];
 }
 
 function buildVisualFields() {
@@ -366,12 +883,13 @@ class SkyRenderer {
         }
 
         vec2 kaleido(vec2 uv, float segments) {
-          vec2 p = uv * 2.0 - 1.0;
+          vec2 center = vec2(0.5, 0.57);
+          vec2 p = (uv - center) * 2.0;
           float radius = length(p);
           float angle = atan(p.y, p.x);
           float slice = 6.28318530718 / segments;
           angle = mod(angle + slice * 0.5, slice) - slice * 0.5;
-          return vec2(cos(angle), sin(angle)) * radius * 0.5 + 0.5;
+          return vec2(cos(angle), sin(angle)) * radius * 0.5 + center;
         }
 
         void main() {
@@ -397,10 +915,13 @@ class SkyRenderer {
           kalei += vec3(0.36, 0.12, 0.72) * smoothstep(0.42, 0.72, 1.0 - mandala) * 0.2;
 
           float digitalSide = smoothstep(0.58, 0.14, uv.x + sin(uv.y * 6.0 + uTime * 0.22) * 0.08);
-          vec2 grid = floor((uv + vec2(uTime * 0.012, -uTime * 0.018)) * vec2(120.0, 68.0));
-          float bits = step(0.885, hash(grid));
+          vec2 gridScale = vec2(82.0 + sin(uTime * 0.09) * 10.0, 48.0 + cos(uTime * 0.07) * 8.0);
+          vec2 grid = floor((uv + vec2(uTime * 0.009, -uTime * 0.014)) * gridScale);
+          float bitSeed = hash(grid + floor(uTime * 0.72));
+          float bits = step(0.938 + 0.024 * sin(uTime * 0.17 + grid.x * 0.31), bitSeed);
           float scan = 0.55 + 0.45 * sin(uv.y * uResolution.y * 1.45);
-          vec3 decay = mix(vec3(0.01, 0.045, 0.05), vec3(0.0, 0.95, 0.62), bits * scan);
+          vec3 bitColor = mix(vec3(0.0, 0.95, 0.62), vec3(0.16, 0.82, 1.0), hash(grid + 9.7));
+          vec3 decay = mix(vec3(0.01, 0.045, 0.05), bitColor, bits * scan);
           decay += vec3(0.03, 0.24, 0.2) * smoothstep(0.38, 0.9, fbm(uv * vec2(20.0, 9.0) + uTime * 0.05));
 
           float kaleiMix = 0.28 + 0.28 * sin(uTime * 0.035 + uv.y * 3.0);
@@ -489,7 +1010,9 @@ function drawFrame(now: number) {
     livingElapsed,
     birth,
     blink,
-    glitch
+    glitch,
+    awareness: awarenessLevel,
+    consciousness: consciousnessLevel
   };
 
   if (phase !== lastPhase) {
@@ -500,7 +1023,12 @@ function drawFrame(now: number) {
     }
   }
 
-  brand.classList.toggle('is-visible', phase === 'living' && livingElapsed > logoDelay);
+  const livingInterfaceVisible = phase === 'living' && livingElapsed > logoDelay && !domainActive;
+  updateLookMotion(livingInterfaceVisible ? 1 : 0);
+  brand.classList.toggle('is-visible', livingInterfaceVisible);
+  irisLink.classList.toggle('is-visible', livingInterfaceVisible);
+  ghostPortal.classList.toggle('is-visible', livingInterfaceVisible);
+  awarenessPanel.classList.toggle('is-visible', livingInterfaceVisible);
   const blur = glitch > 0.18 ? `blur(${(glitch * 4.4).toFixed(2)}px) saturate(${1 + glitch * 0.42})` : '';
   skyCanvas.style.filter = blur;
 
@@ -795,10 +1323,13 @@ function drawBlackout(blackoutElapsed: number) {
 
 function drawLiving(seconds: number, livingElapsed: number, birth: number, blink: number, glitch: number) {
   ctx.save();
+  const organicLift = 0.84 + awarenessLevel * 0.42;
+  const machineLift = 0.84 + consciousnessLevel * 0.54;
+  const fusionLift = 0.72 + (awarenessLevel + consciousnessLevel) * 0.34;
   drawRetinalArtifacts(seconds, birth, glitch);
-  drawOrganicNetwork(seconds, 1, 0.22 * birth);
-  drawCircuitNetwork(seconds, 1, 0.16 * birth);
-  drawFusionStrands(seconds, 1, 0.35 * birth);
+  drawOrganicNetwork(seconds, 1, 0.22 * birth * organicLift);
+  drawCircuitNetwork(seconds, 1, 0.16 * birth * machineLift);
+  drawFusionStrands(seconds, 1, 0.35 * birth * fusionLift);
   drawEyelids(livingElapsed, birth, blink);
   ctx.restore();
 }
@@ -810,8 +1341,8 @@ function drawRetinalArtifacts(seconds: number, birth: number, glitch: number) {
 
   ctx.save();
   ctx.globalCompositeOperation = 'lighter';
-  const centerX = width * (0.5 + Math.sin(seconds * 0.08) * 0.04);
-  const centerY = height * (0.47 + Math.cos(seconds * 0.07) * 0.03);
+  const centerX = width * (0.5 + Math.sin(seconds * 0.08) * 0.026);
+  const centerY = height * (0.57 + Math.cos(seconds * 0.07) * 0.02);
   const rings = 7;
 
   for (let i = 0; i < rings; i += 1) {
@@ -888,31 +1419,127 @@ function drawEyelids(livingElapsed: number, birth: number, blink: number) {
   ctx.restore();
 }
 
+function jumpToLivingScene(disableTransitions = false) {
+  if (disableTransitions) {
+    skyCanvas.style.transition = 'none';
+    brand.style.transition = 'none';
+    irisLink.style.transition = 'none';
+    ghostPortal.style.transition = 'none';
+    awarenessPanel.style.transition = 'none';
+  } else {
+    skyCanvas.style.transition = '';
+    brand.style.transition = '';
+    irisLink.style.transition = '';
+    ghostPortal.style.transition = '';
+    awarenessPanel.style.transition = '';
+  }
+
+  startedAt = performance.now() - (bootDuration + blackoutDuration + eyeOpenDuration + logoDelay + 1_200);
+  brand.classList.remove('is-visible');
+  irisLink.classList.remove('is-visible');
+  ghostPortal.classList.remove('is-visible');
+  awarenessPanel.classList.remove('is-visible');
+  lastPhase = '';
+}
+
+function openDomainSequence() {
+  domainActive = true;
+  domainSequence.classList.add('is-active');
+  domainSequence.classList.remove('is-complete');
+  domainCode.textContent = '';
+  domainCode.scrollTop = 0;
+  regainConscious.blur();
+  brand.classList.remove('is-visible');
+  irisLink.classList.remove('is-visible');
+  ghostPortal.classList.remove('is-visible');
+  awarenessPanel.classList.remove('is-visible');
+  startedAt = performance.now() - bootDuration * 0.44;
+  lastPhase = '';
+
+  cancelAnimationFrame(domainRevealFrame);
+  domainRevealStart = performance.now();
+  domainRevealFrame = requestAnimationFrame(revealDomainSignal);
+}
+
+function revealDomainSignal(now: number) {
+  const revealDuration = clamp(domainSignal.length * 7.1, 18_000, 38_000);
+  const progress = clamp((now - domainRevealStart) / revealDuration, 0, 1);
+  const eased = smoothstep(0, 1, progress);
+  const visibleCharacters = Math.floor(domainSignal.length * eased);
+  domainCode.textContent = domainSignal.slice(0, visibleCharacters);
+  domainCode.scrollTop = domainCode.scrollHeight;
+
+  if (progress < 1) {
+    domainRevealFrame = requestAnimationFrame(revealDomainSignal);
+    return;
+  }
+
+  domainCode.textContent = domainSignal;
+  domainCode.scrollTop = domainCode.scrollHeight;
+  domainSequence.classList.add('is-complete');
+}
+
+function closeDomainSequence() {
+  domainActive = false;
+  cancelAnimationFrame(domainRevealFrame);
+  domainSequence.classList.remove('is-active', 'is-complete');
+  jumpToLivingScene();
+}
+
 window.addEventListener('resize', resize);
+window.addEventListener('pointermove', (event) => setLookFromClient(event.clientX, event.clientY), { passive: true });
+window.addEventListener('pointerleave', resetLook);
+window.addEventListener(
+  'touchmove',
+  (event) => {
+    const touch = event.touches[0];
+    if (touch) {
+      setLookFromClient(touch.clientX, touch.clientY);
+    }
+  },
+  { passive: true }
+);
+window.addEventListener('touchend', resetLook);
 window.addEventListener('keydown', (event) => {
   if (event.key.toLowerCase() === 'r') {
     startedAt = performance.now();
     brand.classList.remove('is-visible');
+    irisLink.classList.remove('is-visible');
+    ghostPortal.classList.remove('is-visible');
+    awarenessPanel.classList.remove('is-visible');
     lastPhase = '';
   }
 });
 
+ghostPortal.addEventListener('click', openDomainSequence);
+regainConscious.addEventListener('click', closeDomainSequence);
+awarenessForm.addEventListener('submit', (event) => {
+  event.preventDefault();
+  processAwarenessInput(true);
+});
+awarenessInput.addEventListener('input', queueAwarenessUpdate);
+
 debugWindow.__HUMETATECH_DEBUG__ = {
   jumpToLiving() {
-    skyCanvas.style.transition = 'none';
-    brand.style.transition = 'none';
-    startedAt = performance.now() - (bootDuration + blackoutDuration + eyeOpenDuration + logoDelay + 1_200);
-    brand.classList.remove('is-visible');
-    lastPhase = '';
+    jumpToLivingScene(true);
   },
   restart() {
     skyCanvas.style.transition = '';
     brand.style.transition = '';
+    irisLink.style.transition = '';
+    ghostPortal.style.transition = '';
+    awarenessPanel.style.transition = '';
+    domainActive = false;
+    domainSequence.classList.remove('is-active', 'is-complete');
     startedAt = performance.now();
     brand.classList.remove('is-visible');
+    irisLink.classList.remove('is-visible');
+    ghostPortal.classList.remove('is-visible');
+    awarenessPanel.classList.remove('is-visible');
     lastPhase = '';
   }
 };
 
+updateAwarenessReadout();
 resize();
 requestAnimationFrame(drawFrame);

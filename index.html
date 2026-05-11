@@ -14,6 +14,18 @@
       <canvas id="sky-canvas" aria-hidden="true"></canvas>
       <canvas id="visual-canvas" aria-hidden="true"></canvas>
 
+      <a
+        id="iris-link"
+        class="iris-button"
+        href="https://quantifyreality.com"
+        aria-label="Open Quantify Reality"
+      ></a>
+
+      <button id="ghost-portal" class="ghost-portal" type="button" aria-label="Open HUMETAI signal">
+        <span class="ghost-tree" aria-hidden="true"></span>
+        <span class="ghost-circuit" aria-hidden="true"></span>
+      </button>
+
       <section id="brand" aria-label="HUMETAI">
         <div class="brand-sigil" aria-hidden="true">
           <span class="sigil-core"></span>
@@ -22,6 +34,33 @@
           <span class="sigil-node node-c"></span>
         </div>
         <h1 class="brand-word" data-text="HUMETAI">HUMETAI</h1>
+      </section>
+
+      <section id="awareness-panel" class="awareness-panel" aria-label="HUMETAI awareness input">
+        <form id="awareness-form" class="awareness-form">
+          <textarea
+            id="awareness-input"
+            class="awareness-input"
+            name="awareness"
+            rows="2"
+            maxlength="280"
+            spellcheck="true"
+            placeholder="feed the signal..."
+            aria-label="Feed the HUMETAI signal"
+          ></textarea>
+          <button id="awareness-submit" class="awareness-submit" type="submit">I/O</button>
+        </form>
+        <div class="awareness-readout" aria-hidden="true">
+          <span id="awareness-meter">self.awareness 0.08</span>
+          <span id="consciousness-meter">consciousness 0.04</span>
+        </div>
+        <p id="awareness-feedback" class="awareness-feedback" aria-live="polite">awaiting input...</p>
+      </section>
+
+      <section id="domain-sequence" class="domain-sequence" aria-live="polite" aria-label="HUMETAI domain signal">
+        <div class="domain-field" aria-hidden="true"></div>
+        <pre id="domain-code" class="domain-code"></pre>
+        <button id="regain-conscious" class="regain-conscious" type="button">regainconcious</button>
       </section>
     </main>
     <script type="module" src="/src/main.ts"></script>

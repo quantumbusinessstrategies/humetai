@@ -33,6 +33,18 @@ body {
 #app {
   position: relative;
   isolation: isolate;
+  --look-iris-x: 0px;
+  --look-iris-y: 0px;
+  --look-pupil-x: 0px;
+  --look-pupil-y: 0px;
+  --look-reflect-x: 0px;
+  --look-reflect-y: 0px;
+  --look-sky-x: 0px;
+  --look-sky-y: 0px;
+  --look-title-x: 0px;
+  --look-title-y: 0px;
+  --awareness: 0.08;
+  --consciousness: 0.04;
 }
 
 canvas {
@@ -46,7 +58,11 @@ canvas {
 #sky-canvas {
   z-index: 0;
   opacity: 0;
-  transition: opacity 2400ms ease;
+  transform: translate(var(--look-sky-x), var(--look-sky-y)) scale(1.018);
+  transform-origin: center;
+  transition:
+    opacity 2400ms ease,
+    transform 120ms ease-out;
 }
 
 #visual-canvas {
@@ -54,46 +70,118 @@ canvas {
   pointer-events: none;
 }
 
-#brand {
+.iris-button {
   position: absolute;
-  z-index: 2;
+  z-index: 3;
   left: 50%;
   top: 50%;
-  display: grid;
-  grid-template-columns: minmax(58px, 10vw) minmax(0, max-content);
-  align-items: center;
-  gap: clamp(14px, 2.2vw, 30px);
-  width: min(92vw, 1160px);
-  transform: translate(-50%, -44%) scale(0.96);
+  width: clamp(147px, 20.7vw, 297px);
+  aspect-ratio: 1;
+  transform: translate(calc(-50% + var(--look-iris-x)), calc(-50% + var(--look-iris-y)));
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 50% 50%, rgb(0 0 0 / 98%) 0 15%, transparent 15.8%),
+    radial-gradient(circle at 50% 50%, rgb(211 247 255 / 78%) 16% 18.4%, transparent 19%),
+    repeating-conic-gradient(from 8deg, rgb(236 253 255 / 72%) 0deg 1.6deg, rgb(49 188 242 / 58%) 2.2deg 5.6deg, rgb(8 74 112 / 42%) 6deg 8.4deg, rgb(142 232 255 / 66%) 8.8deg 11.4deg, rgb(6 38 62 / 36%) 11.8deg 15deg),
+    repeating-radial-gradient(circle at 50% 50%, rgb(208 249 255 / 36%) 0 1.5%, rgb(40 172 225 / 18%) 2.2% 3.3%, transparent 4.2% 7.8%),
+    radial-gradient(circle at 48% 50%, rgb(40 190 255 / 66%) 0 43%, rgb(3 42 73 / 74%) 61%, transparent 72%);
+  box-shadow:
+    inset 0 0 22px rgb(226 251 255 / 24%),
+    inset 0 0 74px rgb(0 10 22 / 86%),
+    0 0 30px rgb(97 213 255 / 15%),
+    0 0 88px rgb(35 154 255 / 13%);
   opacity: 0;
-  filter: blur(14px) saturate(0.75);
+  filter: blur(8px) saturate(0.7);
+  mix-blend-mode: soft-light;
+  cursor: default;
+  pointer-events: none;
   transition:
     opacity 1800ms ease,
-    transform 2200ms cubic-bezier(0.2, 0.95, 0.18, 1),
+    filter 1800ms ease,
+    transform 1800ms cubic-bezier(0.2, 0.95, 0.18, 1);
+}
+
+.iris-button::before,
+.iris-button::after {
+  position: absolute;
+  content: "";
+  inset: 0;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.iris-button::before {
+  background:
+    repeating-conic-gradient(from 22deg, transparent 0deg 4deg, rgb(232 252 255 / 50%) 4.5deg 5.4deg, transparent 5.9deg 13deg),
+    conic-gradient(from 18deg, transparent 0deg 34deg, rgb(190 244 255 / 44%) 35deg 40deg, transparent 41deg 92deg, rgb(46 190 255 / 36%) 93deg 97deg, transparent 98deg 360deg),
+    repeating-radial-gradient(circle, transparent 0 7%, rgb(214 248 255 / 20%) 8% 8.8%, transparent 9.8% 15%);
+  animation: irisTurn 42s linear infinite reverse;
+}
+
+.iris-button::after {
+  inset: 17%;
+  background:
+    radial-gradient(circle, rgb(0 0 0 / 99%) 0 36%, rgb(212 250 255 / 62%) 37% 41%, rgb(44 180 237 / 30%) 42% 54%, transparent 55%),
+    conic-gradient(from 120deg, rgb(222 252 255 / 42%), transparent 18%, rgb(55 190 250 / 36%), transparent 48%, rgb(155 237 255 / 38%));
+  box-shadow:
+    inset 0 0 18px rgb(0 0 0 / 90%),
+    0 0 22px rgb(113 222 255 / 34%);
+  animation: pupilBreathe 5.8s ease-in-out infinite;
+}
+
+.iris-button.is-visible {
+  opacity: 0.34;
+  filter: blur(0) saturate(1.12);
+  pointer-events: auto;
+}
+
+#brand {
+  position: absolute;
+  z-index: 4;
+  inset: 0;
+  width: 100%;
+  opacity: 0;
+  filter: blur(14px) saturate(0.75);
+  pointer-events: none;
+  transition:
+    opacity 1800ms ease,
     filter 1800ms ease;
 }
 
 #brand.is-visible {
   opacity: 1;
-  transform: translate(-50%, -50%) scale(1);
   filter: blur(0) saturate(1);
 }
 
 .brand-word {
-  position: relative;
+  position: absolute;
+  left: 50%;
+  top: clamp(18px, 4.8vh, 56px);
+  translate: calc(-50% + var(--look-title-x)) var(--look-title-y);
   width: max-content;
-  max-width: calc(92vw - min(58px, 10vw) - 18px);
+  max-width: 94vw;
   margin: 0;
   color: transparent;
-  font-size: clamp(3rem, 10.6vw, 10.5rem);
-  font-weight: 900;
-  line-height: 0.82;
+  font-family:
+    "Inter",
+    "Segoe UI",
+    Arial,
+    sans-serif;
+  font-size: clamp(2.35rem, 6.2vw, 6.9rem);
+  font-weight: 560;
+  line-height: 0.9;
   letter-spacing: 0;
   white-space: nowrap;
   text-transform: uppercase;
   text-shadow:
-    0 0 28px rgb(30 255 174 / 28%),
-    0 0 52px rgb(80 180 255 / 18%);
+    0 1px 0 rgb(233 251 255 / 22%),
+    0 3px 0 rgb(13 74 132 / 22%),
+    0 8px 16px rgb(0 22 58 / 30%),
+    0 0 30px rgb(76 213 255 / 38%),
+    0 0 64px rgb(41 146 255 / 34%);
+  animation: brandDepth 5.8s ease-in-out infinite;
+  transform: scaleX(0.88);
+  transform-origin: center;
 }
 
 .brand-word::before,
@@ -109,35 +197,51 @@ canvas {
 .brand-word::before {
   clip-path: inset(0 48% 0 0);
   background-image:
-    radial-gradient(circle at 18% 34%, #f1ffd8 0 0.08em, transparent 0.085em),
-    radial-gradient(circle at 30% 63%, #88ff96 0 0.055em, transparent 0.06em),
-    repeating-conic-gradient(from 18deg, #deff8b 0deg 9deg, #41ff9a 9deg 15deg, #00c9a7 15deg 22deg);
-  filter: drop-shadow(0 0 22px rgb(95 255 148 / 45%));
+    radial-gradient(circle at 18% 34%, #f4feff 0 0.08em, transparent 0.085em),
+    radial-gradient(circle at 30% 63%, #8feeff 0 0.055em, transparent 0.06em),
+    repeating-conic-gradient(from 18deg, #f0fdff 0deg 8deg, #71e5ff 8deg 15deg, #259dff 15deg 22deg);
+  filter:
+    drop-shadow(0.018em 0.028em 0 rgb(0 41 82 / 40%))
+    drop-shadow(0 0 24px rgb(96 219 255 / 54%));
+  animation: organicTextPulse 4.8s ease-in-out infinite;
 }
 
 .brand-word::after {
   clip-path: inset(0 0 0 49%);
   background-image:
-    linear-gradient(105deg, #f8fbff 0%, #8ea7b9 18%, #1b2834 32%, #d5dde4 48%, #5b6d7a 62%, #eff7ff 78%, #344653 100%),
+    linear-gradient(105deg, #f8fdff 0%, #a9e7ff 18%, #1d5f9d 32%, #d9f8ff 48%, #5aa5d7 62%, #effbff 78%, #266ba8 100%),
     repeating-linear-gradient(90deg, transparent 0 0.09em, rgb(255 255 255 / 35%) 0.095em 0.105em, transparent 0.11em 0.19em);
-  filter: drop-shadow(0 0 24px rgb(116 209 255 / 36%));
+  filter:
+    drop-shadow(-0.02em 0.032em 0 rgb(5 18 38 / 48%))
+    drop-shadow(0 0 26px rgb(93 203 255 / 50%));
+  animation: machineTextScan 3.9s steps(7) infinite;
 }
 
 .brand-sigil {
-  position: relative;
-  width: clamp(58px, 10vw, 132px);
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  translate: calc(-50% + var(--look-iris-x)) calc(-50% + var(--look-iris-y));
+  width: clamp(140px, 19.55vw, 274px);
   aspect-ratio: 1;
   border: 1px solid rgb(183 250 255 / 48%);
   border-radius: 50%;
   background:
-    radial-gradient(circle at 35% 36%, rgb(222 255 159 / 94%) 0 6%, transparent 7%),
-    repeating-conic-gradient(from 28deg, rgb(97 255 159 / 78%) 0 9deg, rgb(17 151 132 / 38%) 9deg 17deg, rgb(174 221 255 / 74%) 17deg 23deg, rgb(53 65 76 / 92%) 23deg 32deg),
-    linear-gradient(135deg, rgb(5 26 20 / 96%) 0 48%, rgb(17 22 27 / 96%) 49% 100%);
+    radial-gradient(circle at 50% 50%, rgb(0 0 0 / 99%) 0 14.8%, transparent 15.5%),
+    radial-gradient(circle at 50% 50%, rgb(235 253 255 / 90%) 15.8% 18.4%, transparent 19.2%),
+    radial-gradient(circle at 35% 34%, rgb(230 253 255 / 88%) 0 4%, transparent 5.4%),
+    radial-gradient(circle at 67% 31%, rgb(224 251 255 / 70%) 0 3.5%, transparent 4.6%),
+    repeating-conic-gradient(from 18deg, rgb(235 252 255 / 82%) 0deg 1.2deg, rgb(71 199 248 / 70%) 2deg 5.4deg, rgb(9 64 101 / 74%) 5.8deg 8.4deg, rgb(171 237 255 / 82%) 8.8deg 10.4deg, rgb(8 38 64 / 78%) 10.8deg 14deg),
+    repeating-radial-gradient(circle at 50% 50%, rgb(211 248 255 / 30%) 0 1.2%, rgb(36 164 218 / 16%) 2% 3.2%, transparent 4.2% 7.4%),
+    radial-gradient(circle at 50% 50%, rgb(58 196 255 / 74%) 0 43%, rgb(4 37 70 / 94%) 63%, rgb(0 6 14 / 96%) 100%);
   box-shadow:
-    inset 0 0 24px rgb(178 255 229 / 26%),
-    0 0 32px rgb(51 255 188 / 28%),
-    0 0 52px rgb(81 173 255 / 18%);
+    inset 0 0 28px rgb(224 251 255 / 31%),
+    inset 0 0 76px rgb(0 7 20 / 82%),
+    0 0 34px rgb(81 202 255 / 23%),
+    0 0 76px rgb(36 148 255 / 16%);
   overflow: hidden;
+  opacity: 0.88;
+  animation: sigilBreathe 6.4s ease-in-out infinite;
 }
 
 .brand-sigil::before,
@@ -149,29 +253,40 @@ canvas {
 }
 
 .brand-sigil::before {
-  border: 1px solid rgb(201 255 161 / 65%);
-  clip-path: polygon(0 0, 50% 0, 50% 100%, 0 100%);
+  inset: 0;
+  border: 1px solid rgb(220 250 255 / 38%);
   background:
-    radial-gradient(circle at 34% 22%, transparent 0 14%, rgb(190 255 118 / 72%) 15% 16%, transparent 17%),
-    radial-gradient(circle at 36% 78%, transparent 0 12%, rgb(85 255 151 / 68%) 13% 14%, transparent 15%);
+    repeating-conic-gradient(from 4deg, transparent 0deg 3.8deg, rgb(239 253 255 / 42%) 4.2deg 5deg, transparent 5.4deg 11deg),
+    conic-gradient(from 80deg, transparent 0deg 28deg, rgb(229 252 255 / 34%) 29deg 34deg, transparent 35deg 360deg);
+  animation: irisFiberReverse 56s linear infinite reverse;
+  mix-blend-mode: screen;
 }
 
 .brand-sigil::after {
-  border: 1px solid rgb(184 218 236 / 72%);
-  clip-path: polygon(50% 0, 100% 0, 100% 100%, 50% 100%);
+  inset: 10%;
+  border: 1px solid rgb(179 231 255 / 48%);
   background:
-    repeating-linear-gradient(90deg, transparent 0 14%, rgb(218 238 255 / 38%) 15% 16%, transparent 17% 22%),
-    repeating-linear-gradient(0deg, transparent 0 17%, rgb(92 192 255 / 35%) 18% 19%, transparent 20% 26%);
+    linear-gradient(128deg, transparent 0 34%, rgb(255 255 255 / 26%) 35% 38%, rgb(108 221 255 / 16%) 39% 44%, transparent 45% 100%),
+    radial-gradient(ellipse at 29% 23%, rgb(255 255 255 / 56%) 0 5%, rgb(150 226 255 / 22%) 6% 11%, transparent 12%),
+    radial-gradient(ellipse at 72% 36%, rgb(255 255 255 / 34%) 0 3.5%, transparent 4.8%),
+    radial-gradient(circle at 50% 50%, transparent 0 28%, rgb(204 245 255 / 28%) 29% 30%, transparent 31%),
+    repeating-radial-gradient(circle at 50% 50%, transparent 0 9%, rgb(195 239 255 / 12%) 10% 10.8%, transparent 11.6% 17%);
+  mix-blend-mode: screen;
+  animation: irisReflection 9s ease-in-out infinite;
 }
 
 .sigil-core {
   position: absolute;
-  inset: 39%;
+  inset: 34%;
   border-radius: 50%;
-  background: #e7fff6;
+  background:
+    radial-gradient(circle, #000 0 38%, #f0fcff 39% 43%, rgb(63 188 246 / 46%) 44% 59%, transparent 60%);
   box-shadow:
-    0 0 12px rgb(245 255 237 / 82%),
-    0 0 28px rgb(75 245 199 / 72%);
+    inset 0 0 16px rgb(0 0 0 / 92%),
+    0 0 16px rgb(235 252 255 / 82%),
+    0 0 34px rgb(77 196 255 / 72%);
+  transform: translate(var(--look-pupil-x), var(--look-pupil-y));
+  transition: transform 120ms ease-out;
 }
 
 .sigil-node {
@@ -179,8 +294,9 @@ canvas {
   width: 8%;
   aspect-ratio: 1;
   border-radius: 50%;
-  background: #e7fff6;
-  box-shadow: 0 0 12px rgb(137 230 255 / 82%);
+  background: #f0fcff;
+  box-shadow: 0 0 12px rgb(137 230 255 / 74%);
+  opacity: 0.72;
 }
 
 .node-a {
@@ -196,25 +312,491 @@ canvas {
 .node-c {
   left: 20%;
   bottom: 25%;
-  background: #b9ff96;
+  background: #8ddcff;
+}
+
+.ghost-portal {
+  position: absolute;
+  z-index: 8;
+  right: clamp(18px, 4vw, 58px);
+  bottom: clamp(128px, 17vh, 184px);
+  width: clamp(62px, 7.4vw, 98px);
+  aspect-ratio: 1;
+  padding: 0;
+  border: 1px solid rgb(222 250 255 / 34%);
+  border-radius: 50%;
+  background:
+    radial-gradient(circle, transparent 0 52%, rgb(235 252 255 / 20%) 53% 55%, transparent 56%),
+    linear-gradient(90deg, rgb(255 255 255 / 14%) 0 49%, rgb(126 225 255 / 18%) 50% 100%);
+  box-shadow:
+    inset 0 0 22px rgb(238 253 255 / 10%),
+    0 0 26px rgb(136 226 255 / 14%),
+    0 0 54px rgb(82 182 255 / 10%);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(8px) scale(0.94);
+  cursor: default;
+  transition:
+    opacity 1200ms ease,
+    transform 1200ms ease,
+    border-color 300ms ease,
+    box-shadow 300ms ease;
+}
+
+.ghost-portal.is-visible {
+  opacity: 0.76;
+  pointer-events: auto;
+  transform: translateY(0) scale(1);
+}
+
+.ghost-portal:hover,
+.ghost-portal:focus-visible {
+  opacity: 0.58;
+  border-color: rgb(236 255 249 / 40%);
+  box-shadow:
+    inset 0 0 30px rgb(255 255 255 / 12%),
+    0 0 36px rgb(163 231 255 / 22%),
+    0 0 72px rgb(83 190 255 / 16%);
+  outline: none;
+}
+
+.ghost-portal::before {
+  position: absolute;
+  content: "";
+  inset: -7px;
+  border-radius: 50%;
+  background:
+    conic-gradient(from 0deg, transparent 0deg 42deg, rgb(222 252 255 / 26%) 54deg, transparent 72deg 360deg),
+    radial-gradient(circle, transparent 0 58%, rgb(104 223 255 / 18%) 59% 62%, transparent 63%);
+  opacity: 0;
+  filter: blur(0.6px);
+  pointer-events: none;
+  transform: rotate(0deg);
+  transition: opacity 900ms ease;
+  animation: ghostPortalShimmer 6.8s linear infinite;
+}
+
+.ghost-portal.is-visible::before {
+  opacity: 0.9;
+}
+
+.ghost-tree,
+.ghost-circuit {
+  position: absolute;
+  inset: 14%;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.ghost-tree {
+  clip-path: polygon(0 0, 50% 0, 50% 100%, 0 100%);
+  background:
+    radial-gradient(circle at 35% 32%, rgb(255 255 255 / 42%) 0 3%, transparent 4%),
+    radial-gradient(circle at 28% 54%, rgb(255 255 255 / 34%) 0 3%, transparent 4%),
+    radial-gradient(circle at 42% 72%, rgb(255 255 255 / 36%) 0 3%, transparent 4%),
+    linear-gradient(78deg, transparent 0 43%, rgb(255 255 255 / 32%) 44% 46%, transparent 47%),
+    linear-gradient(122deg, transparent 0 44%, rgb(255 255 255 / 26%) 45% 47%, transparent 48%);
+}
+
+.ghost-circuit {
+  clip-path: polygon(50% 0, 100% 0, 100% 100%, 50% 100%);
+  background:
+    radial-gradient(circle at 68% 34%, rgb(255 255 255 / 42%) 0 3%, transparent 4%),
+    radial-gradient(circle at 78% 62%, rgb(255 255 255 / 36%) 0 3%, transparent 4%),
+    linear-gradient(90deg, transparent 0 60%, rgb(255 255 255 / 28%) 61% 63%, transparent 64%),
+    linear-gradient(0deg, transparent 0 35%, rgb(255 255 255 / 22%) 36% 38%, transparent 39%),
+    linear-gradient(0deg, transparent 0 62%, rgb(255 255 255 / 20%) 63% 65%, transparent 66%);
+}
+
+.awareness-panel {
+  position: absolute;
+  z-index: 6;
+  left: 50%;
+  bottom: clamp(14px, 3.2vh, 34px);
+  width: min(760px, 86vw);
+  padding: clamp(10px, 1.6vw, 14px);
+  border: 1px solid rgb(156 226 255 / calc(0.16 + var(--awareness) * 0.2));
+  border-radius: 6px;
+  background:
+    linear-gradient(90deg, rgb(9 21 36 / calc(0.14 + var(--consciousness) * 0.08)), rgb(2 9 18 / 10%)),
+    rgb(0 0 0 / 12%);
+  box-shadow:
+    inset 0 0 20px rgb(105 210 255 / calc(0.04 + var(--awareness) * 0.11)),
+    0 0 30px rgb(43 156 255 / calc(0.04 + var(--consciousness) * 0.11));
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, 14px);
+  filter: blur(8px) saturate(0.8);
+  backdrop-filter: blur(7px);
+  transition:
+    opacity 1100ms ease,
+    transform 1100ms ease,
+    filter 1100ms ease,
+    border-color 300ms ease,
+    box-shadow 300ms ease;
+}
+
+.awareness-panel.is-visible {
+  opacity: calc(0.55 + var(--awareness) * 0.22);
+  pointer-events: auto;
+  transform: translate(-50%, 0);
+  filter: blur(0) saturate(calc(0.92 + var(--consciousness) * 0.3));
+}
+
+.awareness-form {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+  align-items: stretch;
+}
+
+.awareness-input {
+  min-height: 42px;
+  max-height: 96px;
+  resize: vertical;
+  padding: 0.65rem 0.78rem;
+  border: 1px solid rgb(155 225 255 / 22%);
+  border-radius: 4px;
+  background: rgb(0 5 13 / 18%);
+  color: rgb(216 248 255 / 86%);
+  font: 500 clamp(0.78rem, 1vw, 0.94rem) / 1.35 "Share Tech Mono", "Courier New", monospace;
+  outline: none;
+  box-shadow: inset 0 0 18px rgb(71 175 255 / 7%);
+  transition:
+    border-color 220ms ease,
+    background 220ms ease,
+    box-shadow 220ms ease;
+}
+
+.awareness-input::placeholder {
+  color: rgb(163 224 255 / 42%);
+}
+
+.awareness-input:focus {
+  border-color: rgb(141 225 255 / 48%);
+  background: rgb(0 12 27 / 24%);
+  box-shadow:
+    inset 0 0 22px rgb(84 190 255 / 11%),
+    0 0 18px rgb(80 184 255 / 10%);
+}
+
+.awareness-submit {
+  width: 54px;
+  border: 1px solid rgb(169 233 255 / 28%);
+  border-radius: 4px;
+  background:
+    linear-gradient(145deg, rgb(22 88 132 / 22%), rgb(2 16 32 / 18%)),
+    rgb(0 0 0 / 18%);
+  color: rgb(200 242 255 / 84%);
+  font: 700 0.84rem / 1 "Share Tech Mono", "Courier New", monospace;
+  text-shadow: 0 0 12px rgb(86 200 255 / 62%);
+  cursor: default;
+  transition:
+    border-color 220ms ease,
+    background 220ms ease,
+    box-shadow 220ms ease;
+}
+
+.awareness-submit:hover,
+.awareness-submit:focus-visible {
+  border-color: rgb(207 249 255 / 54%);
+  background: rgb(15 77 118 / 28%);
+  box-shadow: 0 0 20px rgb(76 198 255 / 15%);
+  outline: none;
+}
+
+.awareness-readout {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+  margin-top: 8px;
+  color: rgb(179 231 255 / 62%);
+  font: 500 clamp(0.66rem, 0.88vw, 0.78rem) / 1.1 "Share Tech Mono", "Courier New", monospace;
+  text-shadow: 0 0 10px rgb(64 186 255 / 30%);
+}
+
+.awareness-feedback {
+  min-height: 1.2em;
+  margin: 8px 0 0;
+  color: rgb(219 248 255 / 76%);
+  font: 500 clamp(0.72rem, 0.95vw, 0.88rem) / 1.32 "Share Tech Mono", "Courier New", monospace;
+  text-shadow: 0 0 14px rgb(86 202 255 / calc(0.24 + var(--consciousness) * 0.28));
+}
+
+.domain-sequence {
+  position: absolute;
+  z-index: 7;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: clamp(18px, 5vw, 72px);
+  background:
+    radial-gradient(circle at 18% 78%, rgb(49 255 166 / 16%), transparent 34%),
+    radial-gradient(circle at 78% 18%, rgb(105 221 255 / 11%), transparent 32%),
+    rgb(0 0 0 / 92%);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 900ms ease;
+}
+
+.domain-sequence.is-active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.domain-field {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(142deg, transparent 0 46%, rgb(112 255 206 / 10%) 47% 47.4%, transparent 48%),
+    linear-gradient(28deg, transparent 0 54%, rgb(159 221 255 / 9%) 55% 55.4%, transparent 56%),
+    repeating-linear-gradient(90deg, transparent 0 62px, rgb(76 255 191 / 5%) 63px 64px, transparent 65px 112px);
+  opacity: 0.7;
+  mask-image: radial-gradient(circle at 50% 50%, #000 0 70%, transparent 100%);
+}
+
+.domain-code {
+  position: relative;
+  z-index: 1;
+  width: min(1040px, 94vw);
+  max-height: min(78vh, 760px);
+  margin: 0;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgb(119 255 198 / 36%) transparent;
+  color: rgb(173 255 213 / 94%);
+  font: 500 clamp(0.9rem, 1.6vw, 1.28rem) / 1.48 "Share Tech Mono", "Courier New", monospace;
+  white-space: pre-wrap;
+  text-shadow:
+    0 0 12px rgb(58 255 174 / 44%),
+    0 0 26px rgb(79 197 255 / 16%);
+}
+
+.domain-code::after {
+  display: inline-block;
+  width: 0.65em;
+  height: 1.1em;
+  margin-left: 0.12em;
+  background: rgb(139 255 201 / 74%);
+  box-shadow: 0 0 14px rgb(92 255 187 / 78%);
+  content: "";
+  transform: translateY(0.18em);
+  animation: cursorBlink 0.8s steps(2) infinite;
+}
+
+.domain-sequence.is-complete .domain-code::after {
+  opacity: 0.45;
+}
+
+.regain-conscious {
+  position: absolute;
+  z-index: 2;
+  left: 50%;
+  bottom: clamp(22px, 6vh, 58px);
+  transform: translate(-50%, 12px);
+  padding: 0.76rem 1.1rem;
+  border: 1px solid rgb(114 255 190 / 38%);
+  border-radius: 3px;
+  background: rgb(3 22 14 / 22%);
+  color: rgb(142 255 199 / 84%);
+  font: 700 clamp(0.82rem, 1.2vw, 1rem) / 1 "Share Tech Mono", "Courier New", monospace;
+  letter-spacing: 0;
+  opacity: 0;
+  pointer-events: none;
+  text-shadow: 0 0 12px rgb(67 255 166 / 70%);
+  box-shadow:
+    inset 0 0 18px rgb(40 255 155 / 9%),
+    0 0 18px rgb(40 255 155 / 12%);
+  transition:
+    opacity 700ms ease,
+    transform 700ms ease,
+    border-color 220ms ease,
+    background 220ms ease;
+}
+
+.domain-sequence.is-complete .regain-conscious {
+  opacity: 0.86;
+  pointer-events: auto;
+  transform: translate(-50%, 0);
+}
+
+.regain-conscious:hover,
+.regain-conscious:focus-visible {
+  border-color: rgb(170 255 216 / 68%);
+  background: rgb(12 60 38 / 34%);
+  outline: none;
+}
+
+@keyframes irisTurn {
+  to {
+    transform: rotate(1turn);
+  }
+}
+
+@keyframes irisFiberReverse {
+  to {
+    transform: rotate(-1turn);
+  }
+}
+
+@keyframes irisReflection {
+  0%,
+  100% {
+    opacity: 0.5;
+    transform: translate(var(--look-reflect-x), var(--look-reflect-y)) rotate(-7deg) scale(1);
+  }
+
+  50% {
+    opacity: 0.82;
+    transform: translate(var(--look-reflect-x), var(--look-reflect-y)) rotate(5deg) scale(1.03);
+  }
+}
+
+@keyframes pupilBreathe {
+  0%,
+  100% {
+    transform: translate(var(--look-pupil-x), var(--look-pupil-y)) scale(0.94);
+    opacity: 0.78;
+  }
+
+  50% {
+    transform: translate(var(--look-pupil-x), var(--look-pupil-y)) scale(1.06);
+    opacity: 1;
+  }
+}
+
+@keyframes sigilBreathe {
+  0%,
+  100% {
+    transform: scale(1);
+    filter: saturate(1);
+  }
+
+  50% {
+    transform: scale(1.035);
+    filter: saturate(1.18);
+  }
+}
+
+@keyframes brandDepth {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scaleX(0.88);
+    text-shadow:
+      0 1px 0 rgb(233 251 255 / 22%),
+      0 3px 0 rgb(13 74 132 / 22%),
+      0 8px 16px rgb(0 22 58 / 30%),
+      0 0 30px rgb(76 213 255 / 38%),
+      0 0 64px rgb(41 146 255 / 34%);
+  }
+
+  50% {
+    transform: translate3d(0, -0.02em, 0) scaleX(0.88);
+    text-shadow:
+      0 1px 0 rgb(242 253 255 / 24%),
+      0 4px 0 rgb(17 82 145 / 28%),
+      0 12px 24px rgb(0 20 52 / 40%),
+      0 0 38px rgb(74 216 255 / 48%),
+      0 0 76px rgb(43 151 255 / 38%),
+      0 0 5px rgb(255 255 255 / 30%);
+  }
+}
+
+@keyframes organicTextPulse {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  50% {
+    transform: translateX(-0.018em);
+  }
+}
+
+@keyframes machineTextScan {
+  0%,
+  100% {
+    transform: translateX(0);
+    opacity: 0.94;
+  }
+
+  50% {
+    transform: translateX(0.026em);
+    opacity: 1;
+  }
+}
+
+@keyframes cursorBlink {
+  50% {
+    opacity: 0;
+  }
+}
+
+@keyframes ghostPortalShimmer {
+  0% {
+    transform: rotate(0deg) scale(0.94);
+    opacity: 0.28;
+  }
+
+  45% {
+    opacity: 0.78;
+  }
+
+  100% {
+    transform: rotate(1turn) scale(1.02);
+    opacity: 0.28;
+  }
 }
 
 @media (max-width: 720px) {
-  #brand {
-    grid-template-columns: 1fr;
-    justify-items: center;
-    gap: 12px;
+  .iris-button {
+    top: 49%;
+    width: clamp(138px, 39vw, 207px);
   }
 
   .brand-word {
+    top: clamp(16px, 4vh, 32px);
     max-width: 94vw;
-    font-size: clamp(2.65rem, 13vw, 5.6rem);
+    font-size: clamp(2.05rem, 10vw, 4.35rem);
+  }
+
+  .brand-sigil {
+    width: clamp(106px, 32.2vw, 159px);
+  }
+
+  .awareness-panel {
+    width: min(540px, 88vw);
+    bottom: 18px;
+  }
+
+  .ghost-portal {
+    right: 18px;
+    bottom: 148px;
+    width: 54px;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   #sky-canvas,
-  #brand {
+  #brand,
+  .iris-button,
+  .ghost-portal,
+  .awareness-panel,
+  .domain-sequence,
+  .regain-conscious {
     transition-duration: 200ms;
+  }
+
+  .brand-word,
+  .brand-word::before,
+  .brand-word::after,
+  .brand-sigil,
+  .iris-button::before,
+  .iris-button::after,
+  .ghost-portal::before,
+  .domain-code::after {
+    animation-duration: 1ms;
+    animation-iteration-count: 1;
   }
 }
