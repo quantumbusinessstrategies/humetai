@@ -1,4 +1,3 @@
-import * as THREE from 'three';
 import './style.css';
 
 type Point = {
@@ -136,7 +135,7 @@ const awarenessResponse = awarenessResponseElement;
 const domainSequence = domainSequenceElement;
 const domainCode = domainCodeElement;
 const regainConscious = regainConsciousElement;
-const context = visualCanvas.getContext('2d', { alpha: true });
+const context = visualCanvas.getContext('2d', { alpha: true, desynchronized: true });
 
 if (!context) {
   throw new Error('Canvas 2D context is unavailable.');
@@ -611,6 +610,14 @@ let currentDirection = 'forming';
 let awarenessInteractions = 0;
 let awarenessDebounce = 0;
 let lastAwarenessInput = '';
+let animationFrame = 0;
+let frameTimer = 0;
+let resizeFrame = 0;
+let pageHiddenAt = document.hidden ? performance.now() : 0;
+let interfaceVisible = false;
+let lastSkyFilter = '__unset__';
+let lastSigilTransform = '';
+const lookStyleCache: Record<string, string> = {};
 
 function clamp(value: number, min: number, max: number) {
   return Math.min(max, Math.max(min, value));
@@ -652,7 +659,7 @@ function isCompactViewport() {
 
 function updatePerformanceProfile() {
   const deviceRatio = window.devicePixelRatio || 1;
-  const compact = width <= 760 || height <= 560;
+  const compact = isCompactViewport();
   const mid = !compact && width <= 1120;
 
   dpr = Math.min(deviceRatio, compact ? 1.08 : mid ? 1.35 : 1.75);
@@ -661,18 +668,54 @@ function updatePerformanceProfile() {
 }
 
 function resize() {
+  const previousWidth = width;
+  const previousHeight = height;
+  const previousDpr = dpr;
   width = Math.max(320, window.innerWidth);
   height = Math.max(320, window.innerHeight);
   updatePerformanceProfile();
 
-  visualCanvas.width = Math.round(width * dpr);
-  visualCanvas.height = Math.round(height * dpr);
+  const canvasWidth = Math.round(width * dpr);
+  const canvasHeight = Math.round(height * dpr);
+  if (
+    previousWidth === width &&
+    previousHeight === height &&
+    previousDpr === dpr &&
+    visualCanvas.width === canvasWidth &&
+    visualCanvas.height === canvasHeight
+  ) {
+    return;
+  }
+
+  visualCanvas.width = canvasWidth;
+  visualCanvas.height = canvasHeight;
   visualCanvas.style.width = `${width}px`;
   visualCanvas.style.height = `${height}px`;
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-  skyRenderer.setSize(width, height, dpr);
+  skyRenderer?.setSize(width, height, dpr);
   buildVisualFields();
+  lastRenderedAt = 0;
+}
+
+function queueResize() {
+  if (resizeFrame) {
+    return;
+  }
+
+  resizeFrame = requestAnimationFrame(() => {
+    resizeFrame = 0;
+    resize();
+  });
+}
+
+function setCachedAppProperty(name: string, value: string) {
+  if (lookStyleCache[name] === value) {
+    return;
+  }
+
+  lookStyleCache[name] = value;
+  app.style.setProperty(name, value);
 }
 
 function setLookFromClient(clientX: number, clientY: number) {
@@ -692,17 +735,22 @@ function updateLookMotion(intensity: number) {
   const nextY = targetLook.y * easedIntensity;
   currentLook = point(mix(currentLook.x, nextX, 0.075), mix(currentLook.y, nextY, 0.075));
 
-  app.style.setProperty('--look-iris-x', `${(currentLook.x * 7).toFixed(2)}px`);
-  app.style.setProperty('--look-iris-y', `${(currentLook.y * 5).toFixed(2)}px`);
-  app.style.setProperty('--look-pupil-x', `${(currentLook.x * 10).toFixed(2)}px`);
-  app.style.setProperty('--look-pupil-y', `${(currentLook.y * 7).toFixed(2)}px`);
-  sigilCore.style.transform = `translate(${(currentLook.x * 10).toFixed(2)}px, ${(currentLook.y * 7).toFixed(2)}px)`;
-  app.style.setProperty('--look-reflect-x', `${(currentLook.x * -12).toFixed(2)}px`);
-  app.style.setProperty('--look-reflect-y', `${(currentLook.y * -9).toFixed(2)}px`);
-  app.style.setProperty('--look-sky-x', `${(currentLook.x * -12).toFixed(2)}px`);
-  app.style.setProperty('--look-sky-y', `${(currentLook.y * -8).toFixed(2)}px`);
-  app.style.setProperty('--look-title-x', `${(currentLook.x * 5).toFixed(2)}px`);
-  app.style.setProperty('--look-title-y', `${(currentLook.y * 3).toFixed(2)}px`);
+  setCachedAppProperty('--look-iris-x', `${(currentLook.x * 7).toFixed(2)}px`);
+  setCachedAppProperty('--look-iris-y', `${(currentLook.y * 5).toFixed(2)}px`);
+  setCachedAppProperty('--look-pupil-x', `${(currentLook.x * 10).toFixed(2)}px`);
+  setCachedAppProperty('--look-pupil-y', `${(currentLook.y * 7).toFixed(2)}px`);
+  setCachedAppProperty('--look-reflect-x', `${(currentLook.x * -12).toFixed(2)}px`);
+  setCachedAppProperty('--look-reflect-y', `${(currentLook.y * -9).toFixed(2)}px`);
+  setCachedAppProperty('--look-sky-x', `${(currentLook.x * -12).toFixed(2)}px`);
+  setCachedAppProperty('--look-sky-y', `${(currentLook.y * -8).toFixed(2)}px`);
+  setCachedAppProperty('--look-title-x', `${(currentLook.x * 5).toFixed(2)}px`);
+  setCachedAppProperty('--look-title-y', `${(currentLook.y * 3).toFixed(2)}px`);
+
+  const sigilTransform = `translate(${(currentLook.x * 10).toFixed(2)}px, ${(currentLook.y * 7).toFixed(2)}px)`;
+  if (lastSigilTransform !== sigilTransform) {
+    lastSigilTransform = sigilTransform;
+    sigilCore.style.transform = sigilTransform;
+  }
 }
 
 function createAwarenessMemory(): AwarenessMemory {
@@ -1031,13 +1079,15 @@ function growOrganic(origin: Point, angle: number, length: number, depth: number
 }
 
 class SkyRenderer {
-  private renderer: THREE.WebGLRenderer;
-  private material: THREE.ShaderMaterial;
-  private scene: THREE.Scene;
-  private camera: THREE.OrthographicCamera;
+  private renderer: import('three').WebGLRenderer;
+  private material: import('three').ShaderMaterial;
+  private scene: import('three').Scene;
+  private camera: import('three').OrthographicCamera;
 
-  constructor(canvas: HTMLCanvasElement) {
-    this.renderer = new THREE.WebGLRenderer({
+  constructor(canvas: HTMLCanvasElement, three: typeof import('three')) {
+    const { Mesh, OrthographicCamera, PlaneGeometry, Scene, ShaderMaterial, Vector2, WebGLRenderer } = three;
+
+    this.renderer = new WebGLRenderer({
       canvas,
       antialias: false,
       alpha: true,
@@ -1045,14 +1095,14 @@ class SkyRenderer {
       powerPreference: 'high-performance'
     });
     this.renderer.setClearColor(0x000000, 0);
-    this.scene = new THREE.Scene();
-    this.camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
-    this.material = new THREE.ShaderMaterial({
+    this.scene = new Scene();
+    this.camera = new OrthographicCamera(-1, 1, 1, -1, 0, 1);
+    this.material = new ShaderMaterial({
       transparent: true,
       depthWrite: false,
       uniforms: {
         uTime: { value: 0 },
-        uResolution: { value: new THREE.Vector2(1, 1) },
+        uResolution: { value: new Vector2(1, 1) },
         uBirth: { value: 0 },
         uGlitch: { value: 0 }
       },
@@ -1158,8 +1208,8 @@ class SkyRenderer {
       `
     });
 
-    const geometry = new THREE.PlaneGeometry(2, 2);
-    const mesh = new THREE.Mesh(geometry, this.material);
+    const geometry = new PlaneGeometry(2, 2);
+    const mesh = new Mesh(geometry, this.material);
     this.scene.add(mesh);
   }
 
@@ -1177,7 +1227,23 @@ class SkyRenderer {
   }
 }
 
-const skyRenderer = new SkyRenderer(skyCanvas);
+let skyRenderer: SkyRenderer | null = null;
+let skyRendererLoadStarted = false;
+
+async function loadSkyRenderer() {
+  if (skyRendererLoadStarted) {
+    return;
+  }
+
+  skyRendererLoadStarted = true;
+  try {
+    const three = await import('three');
+    skyRenderer = new SkyRenderer(skyCanvas, three);
+    skyRenderer.setSize(width, height, dpr);
+  } catch {
+    skyCanvas.style.opacity = '0';
+  }
+}
 
 function phaseAt(elapsed: number) {
   if (elapsed < bootDuration) {
@@ -1214,9 +1280,94 @@ function currentBlink(now: number, livingElapsed: number) {
   return Math.sin(t * Math.PI);
 }
 
+function setLivingInterfaceVisibility(visible: boolean) {
+  if (interfaceVisible === visible) {
+    return;
+  }
+
+  interfaceVisible = visible;
+  brand.classList.toggle('is-visible', visible);
+  irisLink.classList.toggle('is-visible', visible);
+  ghostPortal.classList.toggle('is-visible', visible);
+  awarenessPanel.classList.toggle('is-visible', visible);
+}
+
+function setSkyCanvasFilter(filter: string) {
+  if (lastSkyFilter === filter) {
+    return;
+  }
+
+  lastSkyFilter = filter;
+  skyCanvas.style.filter = filter;
+}
+
+function startAnimation(delay = 0) {
+  if (animationFrame || frameTimer || document.hidden) {
+    return;
+  }
+
+  if (delay > 0) {
+    frameTimer = window.setTimeout(() => {
+      frameTimer = 0;
+      startAnimation();
+    }, delay);
+    return;
+  }
+
+  animationFrame = requestAnimationFrame(drawFrame);
+}
+
+function stopAnimation() {
+  if (animationFrame) {
+    cancelAnimationFrame(animationFrame);
+    animationFrame = 0;
+  }
+
+  if (frameTimer) {
+    window.clearTimeout(frameTimer);
+    frameTimer = 0;
+  }
+}
+
+function handleVisibilityChange() {
+  if (document.hidden) {
+    pageHiddenAt = performance.now();
+    stopAnimation();
+    if (domainRevealFrame) {
+      cancelAnimationFrame(domainRevealFrame);
+      domainRevealFrame = 0;
+    }
+    return;
+  }
+
+  if (pageHiddenAt > 0) {
+    const pausedFor = performance.now() - pageHiddenAt;
+    startedAt += pausedFor;
+    nextBlinkAt += pausedFor;
+    if (blinkStartedAt > 0) {
+      blinkStartedAt += pausedFor;
+    }
+    if (domainActive) {
+      domainRevealStart += pausedFor;
+    }
+    pageHiddenAt = 0;
+  }
+
+  lastRenderedAt = 0;
+  startAnimation();
+  if (domainActive && !domainSequence.classList.contains('is-complete') && !domainRevealFrame) {
+    domainRevealFrame = requestAnimationFrame(revealDomainSignal);
+  }
+}
+
 function drawFrame(now: number) {
+  animationFrame = 0;
+  if (document.hidden) {
+    return;
+  }
+
   if (renderFrameInterval > 0 && now - lastRenderedAt < renderFrameInterval) {
-    requestAnimationFrame(drawFrame);
+    startAnimation(renderFrameInterval - (now - lastRenderedAt));
     return;
   }
   lastRenderedAt = now;
@@ -1256,14 +1407,11 @@ function drawFrame(now: number) {
 
   const livingInterfaceVisible = phase === 'living' && livingElapsed > logoDelay && !domainActive;
   updateLookMotion(livingInterfaceVisible ? 1 : 0);
-  brand.classList.toggle('is-visible', livingInterfaceVisible);
-  irisLink.classList.toggle('is-visible', livingInterfaceVisible);
-  ghostPortal.classList.toggle('is-visible', livingInterfaceVisible);
-  awarenessPanel.classList.toggle('is-visible', livingInterfaceVisible);
+  setLivingInterfaceVisibility(livingInterfaceVisible);
   const blur = regulatedGlitch > 0.18 ? `blur(${(regulatedGlitch * 4.4).toFixed(2)}px) saturate(${1 + regulatedGlitch * 0.42})` : '';
-  skyCanvas.style.filter = blur;
+  setSkyCanvasFilter(blur);
 
-  skyRenderer.render(seconds, birth, regulatedGlitch);
+  skyRenderer?.render(seconds, birth, regulatedGlitch);
   ctx.clearRect(0, 0, width, height);
 
   if (phase === 'prebirth') {
@@ -1274,7 +1422,7 @@ function drawFrame(now: number) {
     drawLiving(seconds, livingElapsed, birth, blink, regulatedGlitch);
   }
 
-  requestAnimationFrame(drawFrame);
+  startAnimation();
 }
 
 function drawPrebirth(seconds: number, progress: number) {
@@ -1674,10 +1822,7 @@ function jumpToLivingScene(disableTransitions = false) {
   }
 
   startedAt = performance.now() - (bootDuration + blackoutDuration + eyeOpenDuration + logoDelay + 1_200);
-  brand.classList.remove('is-visible');
-  irisLink.classList.remove('is-visible');
-  ghostPortal.classList.remove('is-visible');
-  awarenessPanel.classList.remove('is-visible');
+  setLivingInterfaceVisibility(false);
   lastPhase = '';
 }
 
@@ -1688,10 +1833,7 @@ function openDomainSequence() {
   domainCode.textContent = '';
   domainCode.scrollTop = 0;
   regainConscious.blur();
-  brand.classList.remove('is-visible');
-  irisLink.classList.remove('is-visible');
-  ghostPortal.classList.remove('is-visible');
-  awarenessPanel.classList.remove('is-visible');
+  setLivingInterfaceVisibility(false);
   startedAt = performance.now() - bootDuration * 0.44;
   lastPhase = '';
 
@@ -1725,7 +1867,9 @@ function closeDomainSequence() {
   jumpToLivingScene();
 }
 
-window.addEventListener('resize', resize);
+window.addEventListener('resize', queueResize);
+window.visualViewport?.addEventListener('resize', queueResize);
+document.addEventListener('visibilitychange', handleVisibilityChange);
 window.addEventListener('pointermove', (event) => setLookFromClient(event.clientX, event.clientY), { passive: true });
 window.addEventListener('pointerleave', resetLook);
 window.addEventListener(
@@ -1742,10 +1886,7 @@ window.addEventListener('touchend', resetLook);
 window.addEventListener('keydown', (event) => {
   if (event.key.toLowerCase() === 'r') {
     startedAt = performance.now();
-    brand.classList.remove('is-visible');
-    irisLink.classList.remove('is-visible');
-    ghostPortal.classList.remove('is-visible');
-    awarenessPanel.classList.remove('is-visible');
+    setLivingInterfaceVisibility(false);
     lastPhase = '';
   }
 });
@@ -1778,10 +1919,7 @@ debugWindow.__HUMETATECH_DEBUG__ = {
     domainActive = false;
     domainSequence.classList.remove('is-active', 'is-complete');
     startedAt = performance.now();
-    brand.classList.remove('is-visible');
-    irisLink.classList.remove('is-visible');
-    ghostPortal.classList.remove('is-visible');
-    awarenessPanel.classList.remove('is-visible');
+    setLivingInterfaceVisibility(false);
     lastPhase = '';
   },
   clearAwarenessMemory() {
@@ -1796,5 +1934,6 @@ debugWindow.__HUMETATECH_DEBUG__ = {
 
 awarenessMemory = loadAwarenessMemory();
 refreshAwarenessFromMemory();
+void loadSkyRenderer();
 resize();
-requestAnimationFrame(drawFrame);
+startAnimation();

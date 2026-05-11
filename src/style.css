@@ -33,6 +33,7 @@ body {
 #app {
   position: relative;
   isolation: isolate;
+  contain: layout paint style;
   --look-iris-x: 0px;
   --look-iris-y: 0px;
   --look-pupil-x: 0px;
@@ -55,6 +56,7 @@ canvas {
   width: 100%;
   height: 100%;
   display: block;
+  backface-visibility: hidden;
 }
 
 #sky-canvas {
@@ -77,6 +79,7 @@ canvas {
   z-index: 3;
   left: 50%;
   top: 50%;
+  contain: layout style;
   width: clamp(147px, 20.7vw, 297px);
   aspect-ratio: 1;
   transform: translate(calc(-50% + var(--look-iris-x)), calc(-50% + var(--look-iris-y)));
@@ -142,6 +145,7 @@ canvas {
   z-index: 4;
   inset: 0;
   width: 100%;
+  contain: layout style;
   opacity: 0;
   filter: blur(14px) saturate(0.75);
   pointer-events: none;
@@ -325,6 +329,7 @@ canvas {
   z-index: 8;
   right: clamp(18px, 4vw, 58px);
   bottom: clamp(128px, 17vh, 184px);
+  contain: layout style;
   width: clamp(62px, 7.4vw, 98px);
   aspect-ratio: 1;
   padding: 0;
@@ -419,6 +424,7 @@ canvas {
   z-index: 6;
   left: 50%;
   bottom: clamp(14px, 3.2vh, 34px);
+  contain: layout style;
   width: min(760px, 86vw);
   padding: clamp(10px, 1.6vw, 14px);
   border: 1px solid rgb(156 226 255 / calc(0.16 + var(--awareness) * 0.2));
@@ -545,6 +551,7 @@ canvas {
   position: absolute;
   z-index: 7;
   inset: 0;
+  contain: layout style;
   display: grid;
   place-items: center;
   padding: clamp(18px, 5vw, 72px);
