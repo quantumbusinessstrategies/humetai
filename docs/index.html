@@ -68,6 +68,48 @@
         <pre id="domain-code" class="domain-code"></pre>
         <button id="regain-conscious" class="regain-conscious" type="button">regainconcious</button>
       </section>
-    </main>
+    </main>
+<!-- PHANTOM HOVER BAR - Invisible until mouse near bottom -->
+<div id="quantum-empire-bar" style="position:fixed; bottom:0; left:0; right:0; z-index:9999; background:rgba(0,0,0,0.6); border-top:1px solid rgba(0,255,204,0.2); padding:6px 12px; font-family:'Courier New', monospace; font-size:11px; color:rgba(0,255,204,0.5); display:flex; justify-content:center; gap:20px; flex-wrap:wrap; letter-spacing:1.5px; opacity:0; pointer-events:none; transition:all 0.4s ease; text-shadow:0 0 4px rgba(0,255,204,0.4); backdrop-filter:blur(3px);">
+  <a href="https://humetai.com" style="color:inherit; text-decoration:none; opacity:0.85;">HUMETAI</a>
+  <a href="https://quantifyreality.com" style="color:inherit; text-decoration:none; opacity:0.7;">QUANTIFYREALITY</a>
+  <a href="https://quantumbusinessstrategies.com" style="color:inherit; text-decoration:none; opacity:0.7;">QUANTUM BIZ</a>
+  <a href="https://riskforgeai.com" style="color:inherit; text-decoration:none; opacity:0.7;">RISKFORGE</a>
+  <a href="https://quantumpepes.com" style="color:inherit; text-decoration:none; opacity:0.7;">QUANTUM PEPES</a>
+</div>
+
+<script>
+  const bar = document.getElementById('quantum-empire-bar');
+  let timeout;
+
+  function showBar() {
+    clearTimeout(timeout);
+    bar.style.opacity = '1';
+    bar.style.pointerEvents = 'auto';
+  }
+
+  function hideBar() {
+    timeout = setTimeout(() => {
+      bar.style.opacity = '0';
+      bar.style.pointerEvents = 'none';
+    }, 800); // stays visible for 0.8s after mouse leaves
+  }
+
+  // Show when mouse is near bottom (last 80px of screen)
+  document.addEventListener('mousemove', (e) => {
+    if (e.clientY > window.innerHeight - 80) {
+      showBar();
+    } else {
+      hideBar();
+    }
+  });
+
+  // Also show on touch devices when tapping near bottom
+  document.addEventListener('touchmove', (e) => {
+    if (e.touches[0].clientY > window.innerHeight - 120) {
+      showBar();
+    }
+  });
+</script>
   </body>
 </html>
